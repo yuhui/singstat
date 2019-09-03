@@ -16,8 +16,8 @@
 
 from cachetools import cached, TTLCache
 
-from singstat import net
-from singstat.constants import *
+from . import net
+from .constants import *
 
 class Client(object):
     """Interact with SingStat's API to access its catalogue of datasets.

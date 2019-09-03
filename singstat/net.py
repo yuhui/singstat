@@ -17,8 +17,8 @@
 import backoff
 import requests
 
-from singstat import timezone
-from singstat.exceptions import APIError
+from . import timezone
+from .exceptions import APIError
 
 def send_request(url, **kwargs):
     """Send a request to an endpoint.

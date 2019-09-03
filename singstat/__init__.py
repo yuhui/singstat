@@ -13,11 +13,11 @@
 # limitations under the License.
 
 name = 'singstat'
-version = '1.0'
+version = '1.0.1'
 author = 'Yuhui'
 author_email = 'yuhuibc@gmail.com'
 
-from singstat.client import Client
+from .client import Client
 
 __all__ = [
     'Client',
