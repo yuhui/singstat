@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0.2
+-----
+
+- Updated ``pytest`` requirement.
+
 1.0.1
 -----
 
