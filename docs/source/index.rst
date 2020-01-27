@@ -24,7 +24,8 @@ Release v\ |version|.
    :alt: Documentation Status
    :target: https://singstat.readthedocs.io/en/latest/?badge=latest
 
-This is an unofficial Python package for interacting with APIs available at `SingStat.gov.sg`_.
+This is an unofficial Python package for interacting with APIs available at
+`SingStat.gov.sg`_.
 
 .. _SingStat.gov.sg: https://www.singstat.gov.sg
 
@@ -69,4 +70,5 @@ This project is licensed under the GNU General Public License v3.0.
 Logo
 ----
 
-The logo is copyright by the Government of Singapore. It is used for reference only. This project's owner does not have any copyright claim over it.
+The logo is copyright by the Government of Singapore. It is used for reference
+only. This project's owner does not have any copyright claim over it.
