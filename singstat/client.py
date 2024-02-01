@@ -23,7 +23,7 @@ class Client(object):
     """Interact with SingStat's API to access its catalogue of datasets.
 
     References:
-        https://www.tablebuilder.singstat.gov.sg/publicfacing/api/api-intro.html
+        https://tablebuilder.singstat.gov.sg/view-api/for-developers
     """
 
     @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_ONE_DAY))
