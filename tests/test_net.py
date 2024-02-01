@@ -22,15 +22,15 @@ from singstat import net
     ('url', 'kwargs'),
     [
         (
-            'https://www.tablebuilder.singstat.gov.sg/publicfacing/rest/timeseries/resourceId?keyword=%25&searchOption=All',
+            'https://tablebuilder.singstat.gov.sg/api/table/resourceId?keyword=%25&searchOption=All',
             {},
         ),
         (
-            'https://www.tablebuilder.singstat.gov.sg/publicfacing/rest/timeseries/metadata/14556',
+            'https://tablebuilder.singstat.gov.sg/api/table/metadata/14556',
             {},
         ),
         (
-            'https://www.tablebuilder.singstat.gov.sg/publicfacing/rest/timeseries/tabledata/14556',
+            'https://tablebuilder.singstat.gov.sg/api/table/tabledata/14556',
             {},
         ),
     ],
