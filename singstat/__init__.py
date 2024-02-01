@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name = 'singstat'
-version = '1.0.2'
+version = '1.1.0'
 author = 'Yuhui'
 author_email = 'yuhuibc@gmail.com'
 

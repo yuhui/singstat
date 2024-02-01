@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.1.0
+-----
+
+- Committed contributions from @qiujunda92:
+  - Added user-agent in header.
+  - Updated endpoint base path.
+  - Updated `pytz` version.
+
 1.0.2
 -----
 
