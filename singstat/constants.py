@@ -14,7 +14,7 @@
 
 """Constants that can be used anywhere."""
 
-BASE_API_DOMAIN = 'https://www.tablebuilder.singstat.gov.sg'
+BASE_API_DOMAIN = 'https://tablebuilder.singstat.gov.sg'
 BASE_API_ENDPOINT = '{}/api/table'.format(BASE_API_DOMAIN)
 
 METADATA_ENDPOINT = '{}/metadata'.format(BASE_API_ENDPOINT)
