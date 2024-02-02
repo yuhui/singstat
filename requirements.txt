@@ -1,4 +1,4 @@
 backoff >=1.8,<2.0
 cachetools >=3,<4.0
-pytz >=2022
+pytz >=2022,<2025
 requests >=2,<3.0
