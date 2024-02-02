@@ -5,6 +5,12 @@ build:
   tools:
     python: "3"
 
+python:
+   install:
+      - requirements: requirements_docs.txt
+      - method: pip
+        path: .
+
 sphinx:
   builder: html
   configuration: docs/source/conf.py
