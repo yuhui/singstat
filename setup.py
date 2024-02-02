@@ -25,8 +25,9 @@ packages = [
     'singstat',
 ]
 with open('requirements.txt', 'r') as requirements_file:
-    requirements = requirements_file.read().split('\n')
+    requirements = requirements_file.read().splitlines()
 minimum_python_version = 3
+maximum_python_version = minimum_python_version + 1
 
 test_folders = [
     'tests',
@@ -75,7 +76,7 @@ setup(
     packages=find_packages(exclude=exclude_packages),
     install_requires=requirements,
     platforms=platforms,
-    python_requires='>={}'.format(minimum_python_version),
+    python_requires='>={},<{}'.format(minimum_python_version, maximum_python_version),
 
     author=author,
     author_email=author_email,
