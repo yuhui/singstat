@@ -16,6 +16,7 @@
 
 import re
 from typing import Any
+from warnings import warn
 
 from typeguard import typechecked
 
@@ -53,6 +54,12 @@ class Client(SingStat):
 
         metadata_endpoint = f'{METADATA_ENDPOINT}/{resource_id}'
         metadata = self.send_request(metadata_endpoint)
+
+        data_count = metadata['data_count']
+        records = metadata['data']['records']
+
+        if data_count == 1 and len(records) == 0:
+            warn('Empty data set returned', RuntimeWarning)
 
         return metadata
 
@@ -93,6 +100,12 @@ class Client(SingStat):
         )
 
         resources = self.send_request(RESOURCE_ID_ENDPOINT, params)
+
+        data_count = resources['data_count']
+        total = resources['data']['total']
+
+        if data_count == 1 and total == 0:
+            warn('Empty data set returned', RuntimeWarning)
 
         return resources
 
@@ -182,6 +195,12 @@ class Client(SingStat):
 
         tabledata_endpoint = f'{TABLEDATA_ENDPOINT}/{resource_id}'
         tabledata = self.send_request(tabledata_endpoint, params)
+
+        data_count = tabledata['data_count']
+        rows = tabledata['data']['row']
+
+        if data_count == 1 and len(rows) == 0:
+            warn('Empty data set returned', RuntimeWarning)
 
         return tabledata
 
