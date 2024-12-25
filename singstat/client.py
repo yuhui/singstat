@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Client for interacting with the SingStat APIs."""
+"""Client for interacting with the SingStat API endpoints."""
 
 import re
 from typing import Any
@@ -35,7 +35,7 @@ from .types import MetadataDict, ResourceIdDict, TabledataDict
 class Client(SingStat):
     """Interact with SingStat's API to access its catalogue of datasets.
 
-    References:
+    References: \
         https://tablebuilder.singstat.gov.sg/view-api/for-developers
     """
 
@@ -43,12 +43,14 @@ class Client(SingStat):
     def metadata(self, resource_id: str) -> MetadataDict:
         """Return the metadata of a resource.
 
-        Arguments:
-            resource_id (str):
-                ID of the resource.
+        :param resource_id: ID of the resource.
+        :type resource_id: str
 
-        Returns:
-            (dict) Metadata of the requested resource.
+        :warns RuntimeWarning: "Empty data set returned" when ``data_count`` \
+            is 1 but ``data.records`` is empty.
+
+        :return: Metadata of the requested resource.
+        :rtype: MetadataDict
         """
         metadata: MetadataDict
 
@@ -67,19 +69,18 @@ class Client(SingStat):
     def resource_id(self, **kwargs: Any) -> ResourceIdDict:
         """Search for a list of resources.
 
-        Arguments:
-            keyword (str):
-                (optional) Keyword to search resources by.
-                Default: "%", i.e. don't search by any specific keyword.
-            search_option (str):
-                (optional) Where to search the keyword in.
-                    - "All": search in all resources.
-                    - "Title": search in resource titles only.
-                    - "Variable": search in resource variables only.
-                Default: "All".
+        :param kwargs: Key-value arguments to be passed as parameters \
+            to the endpoint URL. Refer to ``ResourceIdArgsDict`` for the \
+            specification of the argument names and types.
+        :type kwargs: ResourceIdArgsDict
 
-        Returns:
-            (dict) List of resources.
+        :raises APIError: ``search_option`` is not "all", "title" or "variable".
+
+        :warns RuntimeWarning: "Empty data set returned" when ``data_count`` \
+            is 1 but ``data.total`` is 0.
+
+        :return: List of resources.
+        :rtype: ResourceIdDict
         """
         resources: ResourceIdDict
 
@@ -113,36 +114,28 @@ class Client(SingStat):
     def tabledata(self, resource_id: str, **kwargs: Any) -> TabledataDict:
         """Retrieve data in a resource.
 
-        Arguments:
-            resource_id (str):
-                ID of the resource.
-            variables (list):
-                (optional) variables to retrieve.
-                Example: ["variableCode 1", "variableCode 2", ...].
-            between (list):
-                (optional) Data value range to be returned.
-                Example: [1560, 1677].
-            sort_by (str):
-                (optional) Comma-separated field names with ordering.
-                Example: "variableCode,level desc".
-            offset (int):
-                (optional) Offset this number of records.
-                Default: 0.
-            limit (int):
-                (optional) Number of records to return.
-                Maximum is 2,000.
-                Default: 2000.
-            time_filter (list):
-                (optional) Time points for the selected table. Examples:
-                    - Monthly table: ["2018 Mar"]
-                    - Quarterly table: ["2017 4Q", "2018 1Q"]
-                    - Half yearly table: ["2018 H1"]
-                    - Annual table: ["2017", "2018"]
-            search (str):
-                (optional) Text to search for records.
+        :param resource_id: ID of the resource.
+        :type resource_id: str
 
-        Returns:
-            (dict) Records of data that match the search criteria.
+        :param kwargs: Key-value arguments to be passed as parameters \
+            to the endpoint URL. Refer to ``TabledataArgsDict`` for the \
+            specification of the argument names and types.
+        :type kwargs: TabledataArgsDict
+
+        :raises APIError: ``between`` tuple has at least one value that is \
+            less than 0.
+        :raises APIError: ``between`` tuple's first value is greater than its \
+            second value.
+        :raises APIError: ``limit`` is not between 0 and 3000.
+        :raises APIError: ``offset`` is less than 0.
+        :raises APIError: ``sort_by`` does not match the regular expression \
+            ``r'^(key|value|seriesNo|rowNo|rowText) (asc|desc)$'``.
+
+        :warns RuntimeWarning: "Empty data set returned" when ``data_count`` \
+            is 1 but ``data.row`` is empty.
+
+        :return: Records of data that match the search criteria.
+        :rtype: TabledataDict
         """
         tabledata: TabledataDict
 
