@@ -41,22 +41,31 @@ def datetime_from_string(val: str) -> datetime | date:
 
     # first, try parsing without time
     dt_format = '%Y-%m-%d'
+
     try:
         dt = datetime.strptime(val, dt_format)
-    except:
+    except ValueError:
         # next, try parsing without timezone
         dt_format = f'{dt_format} %H:%M:%S'
         try:
             dt = datetime.strptime(val, dt_format)
-        except:
+        except ValueError:
             # last, try parsing with timezone
             dt_format = f'{dt_format}%z'
-            dt = datetime.strptime(val, dt_format)
-    # if still getting an error, then this isn't a datetime string
+            try:
+                dt = datetime.strptime(val, dt_format)
+            except ValueError:
+                # one more time, try parsing with "/" date format
+                dt_format = '%d/%m/%Y'
+                try:
+                    dt = datetime.strptime(val, dt_format)
+                except ValueError as e:
+                    # still getting an error, so this isn't a datetime string
+                    raise ValueError('val is not a datetime string') from e
 
     dt = datetime_as_sgt(dt)
 
-    if dt_format == '%Y-%m-%d':
+    if dt_format == '%Y-%m-%d' or dt_format == '%d/%m/%Y':
         # the original string was just the date, so return a date object only
         dt = dt.date()
 
