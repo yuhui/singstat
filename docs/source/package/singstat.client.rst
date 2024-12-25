@@ -1,5 +1,5 @@
-singstat.client
-===============
+singstat.client Client
+======================
 
 .. automodule:: singstat.client
 
@@ -17,4 +17,5 @@ Methods
 
 .. autoclass:: Client
    :members:
+   :member-order: bysource
    :show-inheritance:
