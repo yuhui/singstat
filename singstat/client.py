@@ -126,3 +126,8 @@ class Client(object):
         )
 
         return tabledata
+
+__all__ = [
+    'Client',
+]
+
