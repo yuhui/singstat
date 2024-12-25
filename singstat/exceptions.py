@@ -34,8 +34,13 @@ class APIError(Exception):
         data: Optional[Any]=None,
         errors: Optional[Any]=None,
     ) -> None:
+        """Constructor method"""
         super().__init__(message)
-        self.errors = errors
+        self.message = message
+        if data:
+            self.data = data
+        if errors:
+            self.errors = errors
 
 __all__ = [
     'APIError',
