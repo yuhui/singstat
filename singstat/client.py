@@ -14,6 +14,7 @@
 
 """Client for interacting with the SingStat APIs."""
 
+import re
 from typing import Any
 
 from . import net
@@ -22,7 +23,9 @@ from typeguard import typechecked
 from .constants import (
     METADATA_ENDPOINT,
     RESOURCE_ID_ENDPOINT,
+    RESOURCE_ID_SEARCH_OPTIONS,
     TABLEDATA_ENDPOINT,
+    TABLEDATA_SORT_BY_REGEXP,
 )
 from .types_args import ResourceIdArgsDict, TabledataArgsDict
 from .types import MetadataDict, ResourceIdDict, TabledataDict
@@ -69,6 +72,16 @@ class Client(object):
             (dict) List of resources.
         """
         resources: ResourceIdDict
+
+        # Validate inputs
+        if (
+            'search_option' in kwargs
+            and kwargs['search_option'] not in RESOURCE_ID_SEARCH_OPTIONS
+        ):
+            search_options = ('", "').join(RESOURCE_ID_SEARCH_OPTIONS)
+            raise ValueError(
+                f'Argument "search_option" must be one of "{search_options}".'
+            )
         resources = net.send_request(
             RESOURCE_ID_ENDPOINT,
             keyword=keyword,
@@ -113,6 +126,35 @@ class Client(object):
             (dict) Records of data that match the search criteria.
         """
         tabledata: TabledataDict
+
+        # Validate inputs
+        if 'between' in kwargs and isinstance(kwargs['between'], tuple):
+            if any(val < 0 for val in kwargs['between']):
+                raise ValueError(
+                    'values in argument "between" must be 0 or greater.'
+                )
+            if kwargs['between'][0] > kwargs['between'][1]:
+                raise ValueError(
+                    'first value in argument "between" must be smaller than second value.'
+                )
+
+        if (
+            'limit' in kwargs
+            and (kwargs['limit'] < 0 or kwargs['limit'] > 3000)
+        ):
+            raise ValueError('argument "limit" must be between 0 and 3000.')
+
+        if 'offset' in kwargs and kwargs['offset'] < 0:
+            raise ValueError('argument "offset" must be 0 or greater.')
+
+        if (
+            'sort_by' in kwargs
+            and re.fullmatch(
+                TABLEDATA_SORT_BY_REGEXP,
+                kwargs['sort_by']
+            ) is None
+        ):
+            raise ValueError('argument "sort_by" has invalid sort criteria.')
         tabledata_endpoint = '{}/{}'.format(TABLEDATA_ENDPOINT, resource_id)
         tabledata = net.send_request(
             tabledata_endpoint,

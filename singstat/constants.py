@@ -20,8 +20,17 @@ BASE_API_ENDPOINT = f'{BASE_API_DOMAIN}/api/table'
 METADATA_ENDPOINT = f'{BASE_API_ENDPOINT}/metadata'
 RESOURCE_ID_ENDPOINT = f'{BASE_API_ENDPOINT}/resourceid'
 TABLEDATA_ENDPOINT = f'{BASE_API_ENDPOINT}/tabledata'
+
+RESOURCE_ID_SEARCH_OPTIONS = ('all', 'title', 'variable')
+
+TABLEDATA_SORT_BY_REGEXP = r'^(key|value|seriesNo|rowNo|rowText) (asc|desc)$'
+
 __all__ = [
     'METADATA_ENDPOINT',
     'RESOURCE_ID_ENDPOINT',
     'TABLEDATA_ENDPOINT',
+
+    'RESOURCE_ID_SEARCH_OPTIONS',
+
+    'TABLEDATA_SORT_BY_REGEXP',
 ]
