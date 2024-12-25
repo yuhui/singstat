@@ -25,5 +25,6 @@ AUTHOR_EMAIL = 'yuhuibc@gmail.com'
 
 __all__ = [
     'Client',
+    'Url',
 ]
 __version__ = VERSION

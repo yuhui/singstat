@@ -15,14 +15,18 @@
 """Client for interacting with the SingStat APIs."""
 
 from cachetools import cached, TTLCache
+from typing import Any
 
 from . import net
+from typeguard import typechecked
 
 from .constants import (
     METADATA_ENDPOINT,
     RESOURCE_ID_ENDPOINT,
     TABLEDATA_ENDPOINT,
 )
+from .types_args import ResourceIdArgsDict, TabledataArgsDict
+from .types import MetadataDict, ResourceIdDict, TabledataDict
 class Client(object):
     """Interact with SingStat's API to access its catalogue of datasets.
 
@@ -31,7 +35,8 @@ class Client(object):
     """
 
     @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_ONE_DAY))
-    def metadata(self, resource_id):
+    @typechecked
+    def metadata(self, resource_id: str) -> MetadataDict:
         """Return the metadata of a resource.
 
         Arguments:
@@ -41,13 +46,15 @@ class Client(object):
         Returns:
             (dict) Metadata of the requested resource.
         """
+        metadata: MetadataDict
         metadata_endpoint = '{}/{}'.format(METADATA_ENDPOINT, resource_id)
         metadata = net.send_request(metadata_endpoint)
 
         return metadata
 
     @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_ONE_DAY))
-    def resource_id(self, keyword='%', search_option='All'):
+    @typechecked
+    def resource_id(self, **kwargs: Any) -> ResourceIdDict:
         """Search for a list of resources.
 
         Arguments:
@@ -64,6 +71,7 @@ class Client(object):
         Returns:
             (dict) List of resources.
         """
+        resources: ResourceIdDict
         resources = net.send_request(
             RESOURCE_ID_ENDPOINT,
             keyword=keyword,
@@ -73,17 +81,8 @@ class Client(object):
         return resources
 
     @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_ONE_DAY))
-    def tabledata(
-        self,
-        resource_id,
-        variables=[],
-        between=[],
-        sort_by=None,
-        offset=0,
-        limit=2000,
-        time_filter=[],
-        search=None,
-    ):
+    @typechecked
+    def tabledata(self, resource_id: str, **kwargs: Any) -> TabledataDict:
         """Retrieve data in a resource.
 
         Arguments:
@@ -117,6 +116,7 @@ class Client(object):
         Returns:
             (dict) Records of data that match the search criteria.
         """
+        tabledata: TabledataDict
         tabledata_endpoint = '{}/{}'.format(TABLEDATA_ENDPOINT, resource_id)
         tabledata = net.send_request(
             tabledata_endpoint,

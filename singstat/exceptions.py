@@ -14,6 +14,11 @@
 
 """Exceptions that could occur when interacting with any API."""
 
+from typing import Any, Optional
+
+from typeguard import typechecked
+
+@typechecked
 class APIError(Exception):
     """Error when the API returns an error.
 
@@ -23,7 +28,12 @@ class APIError(Exception):
         errors (list of str):
             (optional) Other messages that were part of the raised error.
     """
-    def __init__(self, message, errors=None):
+    def __init__(
+        self,
+        message: str,
+        data: Optional[Any]=None,
+        errors: Optional[Any]=None,
+    ) -> None:
         super().__init__(message)
         self.errors = errors
 
