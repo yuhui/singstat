@@ -1,4 +1,4 @@
-# Copyright 2019 Yuhui
+# Copyright 2019-2024 Yuhui
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,33 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=invalid-name,missing-class-docstring,missing-function-docstring,redefined-outer-name,unused-argument
+
 """Test that the timezone functions are working properly."""
 
-import pytest
-
 from datetime import date, datetime
-from pytz import timezone as pytimezone
+from zoneinfo import ZoneInfo
+
+import pytest
+from typeguard import TypeCheckError
 
 from singstat import timezone
 
 @pytest.mark.parametrize(
     ('date_time', 'expected_hour'),
     [
-        (datetime(2019, 7, 1, 8), 8),
-        (datetime(2019, 7, 1, 8, tzinfo=pytimezone('Asia/Singapore')), 8),
-        (datetime(2019, 7, 1, 8, tzinfo=pytimezone('UTC')), 16),
+        (datetime(2019, 7, 1, 8, tzinfo=ZoneInfo('Asia/Singapore')), 8),
+        (datetime(2019, 7, 1, 8, tzinfo=ZoneInfo('UTC')), 16),
     ],
 )
 def test_datetime_as_sgt(date_time, expected_hour):
     sgt_date_time = timezone.datetime_as_sgt(date_time)
-    assert sgt_date_time.hour == expected_hour
+    assert sgt_date_time.hour is expected_hour
 
 @pytest.mark.parametrize(
     'date_time',
     ['2019-07-13 08:32:17', '2019-07-13 08:32:17+08:00'],
 )
 def test_datetime_as_sgt_from_bad_datetime(date_time):
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeCheckError):
         _ = timezone.datetime_as_sgt(date_time)
 
 @pytest.mark.parametrize(
@@ -46,6 +48,7 @@ def test_datetime_as_sgt_from_bad_datetime(date_time):
     [
         ('2019-07-13 08:32:17', datetime(2019, 7, 13, 8, 32, 17)),
         ('2019-07-13', date(2019, 7, 13)),
+        ('13/7/2019', date(2019, 7, 13)),
     ],
 )
 def test_datetime_from_string(date_time_str, expected_date_time):
