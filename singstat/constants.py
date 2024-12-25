@@ -15,12 +15,11 @@
 """Constants that can be used anywhere."""
 
 BASE_API_DOMAIN = 'https://tablebuilder.singstat.gov.sg'
-BASE_API_ENDPOINT = '{}/api/table'.format(BASE_API_DOMAIN)
+BASE_API_ENDPOINT = f'{BASE_API_DOMAIN}/api/table'
 
-METADATA_ENDPOINT = '{}/metadata'.format(BASE_API_ENDPOINT)
-RESOURCE_ID_ENDPOINT = '{}/resourceId'.format(BASE_API_ENDPOINT)
-TABLEDATA_ENDPOINT = '{}/tabledata'.format(BASE_API_ENDPOINT)
-
+METADATA_ENDPOINT = f'{BASE_API_ENDPOINT}/metadata'
+RESOURCE_ID_ENDPOINT = f'{BASE_API_ENDPOINT}/resourceid'
+TABLEDATA_ENDPOINT = f'{BASE_API_ENDPOINT}/tabledata'
 CACHE_MAXSIZE = 1024
 CACHE_ONE_MINUTE = 60
 CACHE_FIVE_MINUTES = CACHE_ONE_MINUTE * 5
