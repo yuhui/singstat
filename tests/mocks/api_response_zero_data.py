@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2024 Yuhui
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,19 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
+# pylint: disable=missing-class-docstring,missing-function-docstring
 
-from .client import Client
-from .types import Url
+"""Mock response to return a response without any data records."""
 
-NAME = 'singstat'
-VERSION = '2.0.0' # Production
-VERSION = f'{VERSION}.{datetime.now().strftime("%Y%m%d%H%M")}' # Development
-AUTHOR = 'Yuhui'
-AUTHOR_EMAIL = 'yuhuibc@gmail.com'
+class APIResponseZeroData:
+    status_code = 200
+
+    @staticmethod
+    def json():
+        return {
+            'Data': 'No records found',
+            'DataCount': 0,
+            'StatusCode': 200,
+            'Message': '',
+        }
 
 __all__ = [
-    'Client',
-    'Url',
+    'APIResponseZeroData',
 ]
-__version__ = VERSION

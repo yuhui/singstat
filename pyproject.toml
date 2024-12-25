@@ -1,6 +1,55 @@
 [build-system]
 requires = [
+    "requests-cache",
     "setuptools",
     "singstat",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "singstat"
+dynamic = [
+    "dependencies",
+    "version"
+]
+authors = [{name = "Yuhui", email = "yuhuibc@gmail.com"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+description = "Python package for interacting with APIs available at SingStat.gov.sg"
+keywords = [
+    'singstat',
+    'singapore statistics',
+    'department of statistics singapore',
+    "python",
+    "singapore",
+    "wrapper",
+]
+license = {file = "LICENSE.txt"}
+readme = "README.rst"
+requires-python = ">= 3.10"
+
+    [project.urls]
+    Homepage = "https://github.com/yuhui/singstat"
+    Documentation = "https://singstat.readthedocs.io/en/latest/"
+    Repository = "https://github.com/yuhui/singstat.git"
+    "Bug Tracker" = "https://github.com/yuhui/singstat/issues"
+    Changelog = "https://github.com/yuhui/singstat/blob/master/CHANGELOG.rst"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+version = {attr = "singstat.__version__"}
+
+[tool.setuptools.package-data]
+singstat = ["py.typed"]

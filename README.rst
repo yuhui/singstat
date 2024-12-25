@@ -1,7 +1,7 @@
 singstat
 ========
 
-|pyversions| |pypi| |status| |license| |readthedocs|
+|pyversions| |pypi| |status| |codecov| |downloads| |license| |readthedocs|
 
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/singstat
    :alt: Python 3
@@ -10,6 +10,10 @@ singstat
    :target: https://pypi.org/project/singstat
 .. |status| image:: https://img.shields.io/pypi/status/singstat
    :alt: PyPi status
+.. |codecov| image:: https://codecov.io/gh/yuhui/singstat/graph/badge.svg?token=ahhqotTFVt
+   :target: https://codecov.io/gh/yuhui/singstat
+   :alt: CodeCov coverage
+.. |downloads| image:: https://img.shields.io/pypi/dm/singstat
 .. |license| image:: https://img.shields.io/github/license/yuhui/singstat
    :alt: GNU General Public License v3.0
    :target: https://www.gnu.org/licenses/gpl-3.0.html
@@ -59,3 +63,15 @@ Reference
 `SingStat.gov.sg's Developer Guide`_
 
 .. _SingStat.gov.sg's Developer Guide: https://tablebuilder.singstat.gov.sg/view-api/for-developers
+
+Other Packages Built by Me
+--------------------------
+
+If you like this package, you may be interested in these packages that I have
+built to work with other Government of Singapore APIs:
+
+- `datagovsg`_: for interacting with APIs available at Data.gov.sg.
+- `landtransportsg`_: for interacting with APIs available at LTA DataMall.
+
+.. _datagovsg: https://pypi.org/project/datagovsg/
+.. _landtransportsg: https://pypi.org/project/landtransportsg/

@@ -1,12 +1,12 @@
-.. singstat documentation master file, created by
+.. singstat documentation master file
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 
-singstat: interact with SingStat.gov.sg's API
+singstat: Interact with SingStat.gov.sg's API
 =============================================
 
-Release v\ |version|.
+Release v\ |release|.
 
 |pyversions| |pypi| |status| |license| |readthedocs|
 
@@ -49,18 +49,12 @@ Contents
 --------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    package_overview
    package_reference
    external_references
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   other_packages
 
 License
 -------

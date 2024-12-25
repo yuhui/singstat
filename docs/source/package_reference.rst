@@ -6,3 +6,5 @@ Package Reference
 
    package/singstat
    package/singstat.client
+   package/singstat.types_args
+   package/singstat.types

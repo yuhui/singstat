@@ -1,4 +1,4 @@
-# Copyright 2019 Yuhui
+# Copyright 2024 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import nox
+"""Mock custom input types."""
 
-@nox.session
-def tests(session):
-    """Run unit tests and generate coverage."""
-    session.install('-r', 'requirements.txt')
-    session.install('coverage')
-    session.install('pytest')
-    session.install('pytest-cov')
-    session.run(
-        'pytest',
-        '--cov=./',
-        '--cov-config=.coveragerc',
-        '--cov-report=term-missing',
-    )
+from typing import NotRequired
+from typing import TypedDict
+
+class MockArgsDict(TypedDict):
+    """Type definition for unit testing"""
+    foobar: str
+    meaning_of_universe: NotRequired[int]
+
+__all__ = [
+    'MockArgsDict',
+]
