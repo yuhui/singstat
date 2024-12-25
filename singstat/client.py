@@ -17,8 +17,12 @@
 from cachetools import cached, TTLCache
 
 from . import net
-from .constants import *
 
+from .constants import (
+    METADATA_ENDPOINT,
+    RESOURCE_ID_ENDPOINT,
+    TABLEDATA_ENDPOINT,
+)
 class Client(object):
     """Interact with SingStat's API to access its catalogue of datasets.
 
