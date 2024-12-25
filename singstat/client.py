@@ -200,4 +200,3 @@ class Client(SingStat):
 __all__ = [
     'Client',
 ]
-
