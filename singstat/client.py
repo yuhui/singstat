@@ -17,19 +17,21 @@
 import re
 from typing import Any
 
-from . import net
 from typeguard import typechecked
 
 from .constants import (
     METADATA_ENDPOINT,
+    RESOURCE_ID_DEFAULT_ARGS,
     RESOURCE_ID_ENDPOINT,
     RESOURCE_ID_SEARCH_OPTIONS,
     TABLEDATA_ENDPOINT,
     TABLEDATA_SORT_BY_REGEXP,
 )
+from .singstat import SingStat
 from .types_args import ResourceIdArgsDict, TabledataArgsDict
 from .types import MetadataDict, ResourceIdDict, TabledataDict
-class Client(object):
+
+class Client(SingStat):
     """Interact with SingStat's API to access its catalogue of datasets.
 
     References:
@@ -48,8 +50,9 @@ class Client(object):
             (dict) Metadata of the requested resource.
         """
         metadata: MetadataDict
-        metadata_endpoint = '{}/{}'.format(METADATA_ENDPOINT, resource_id)
-        metadata = net.send_request(metadata_endpoint)
+
+        metadata_endpoint = f'{METADATA_ENDPOINT}/{resource_id}'
+        metadata = self.send_request(metadata_endpoint)
 
         return metadata
 
@@ -82,11 +85,14 @@ class Client(object):
             raise ValueError(
                 f'Argument "search_option" must be one of "{search_options}".'
             )
-        resources = net.send_request(
-            RESOURCE_ID_ENDPOINT,
-            keyword=keyword,
-            searchOption=search_option,
+
+        params = self.build_params(
+            params_expected_type=ResourceIdArgsDict,
+            original_params=kwargs,
+            default_params=RESOURCE_ID_DEFAULT_ARGS,
         )
+
+        resources = self.send_request(RESOURCE_ID_ENDPOINT, params)
 
         return resources
 
@@ -155,17 +161,27 @@ class Client(object):
             ) is None
         ):
             raise ValueError('argument "sort_by" has invalid sort criteria.')
-        tabledata_endpoint = '{}/{}'.format(TABLEDATA_ENDPOINT, resource_id)
-        tabledata = net.send_request(
-            tabledata_endpoint,
-            variables=','.join(variables),
-            between=','.join([str(r) for r in between]),
-            sortBy=sort_by,
-            offset=offset,
-            limit=limit,
-            timeFilter=','.join(time_filter),
-            search=search,
+
+        params = self.build_params(
+            params_expected_type=TabledataArgsDict,
+            original_params=kwargs,
         )
+
+        # Convert parameters to have the values that the endpoint expects
+        if 'between' in params and isinstance(params['between'], tuple):
+            params['between'] = ','.join(str(b) for b in params['between'])
+
+        if (
+            'seriesNoOrRowNo' in params
+            and isinstance(params['seriesNoOrRowNo'], list)
+        ):
+            params['seriesNoOrRowNo'] = ','.join(params['seriesNoOrRowNo'])
+
+        if 'timeFilter' in params and isinstance(params['timeFilter'], tuple):
+            params['timeFilter'] = ','.join(params['timeFilter'])
+
+        tabledata_endpoint = f'{TABLEDATA_ENDPOINT}/{resource_id}'
+        tabledata = self.send_request(tabledata_endpoint, params)
 
         return tabledata
 

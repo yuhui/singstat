@@ -21,16 +21,42 @@ METADATA_ENDPOINT = f'{BASE_API_ENDPOINT}/metadata'
 RESOURCE_ID_ENDPOINT = f'{BASE_API_ENDPOINT}/resourceid'
 TABLEDATA_ENDPOINT = f'{BASE_API_ENDPOINT}/tabledata'
 
+RESOURCE_ID_DEFAULT_ARGS = {
+    'keyword': '%',
+    'search_option': 'all',
+}
 RESOURCE_ID_SEARCH_OPTIONS = ('all', 'title', 'variable')
 
 TABLEDATA_SORT_BY_REGEXP = r'^(key|value|seriesNo|rowNo|rowText) (asc|desc)$'
+
+DATA_KEYS_TO_SANITISE = (
+    'between',
+    'dataLastUpdated',
+    'dateGenerated',
+    'limit',
+    'offset',
+    'rowNo',
+    'total',
+)
+
+CACHE_NAME = 'singstat_cache'
+CACHE_TWELVE_HOURS = 60 * 60 * 12
+USER_AGENT = 'SingStat Python package/2.0.0 https://pypi.org/project/singstat'
 
 __all__ = [
     'METADATA_ENDPOINT',
     'RESOURCE_ID_ENDPOINT',
     'TABLEDATA_ENDPOINT',
 
+    'RESOURCE_ID_DEFAULT_ARGS',
     'RESOURCE_ID_SEARCH_OPTIONS',
 
     'TABLEDATA_SORT_BY_REGEXP',
+
+    'DATA_KEYS_TO_SANITISE',
+
+    'CACHE_NAME',
+    'CACHE_TWELVE_HOURS',
+
+    'USER_AGENT',
 ]
