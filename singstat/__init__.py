@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name = 'singstat'
-version = '1.1.0'
-author = 'Yuhui'
-author_email = 'yuhuibc@gmail.com'
+from datetime import datetime
 
 from .client import Client
+from .types import Url
+
+NAME = 'singstat'
+VERSION = '2.0.0' # Production
+VERSION = f'{VERSION}.{datetime.now().strftime("%Y%m%d%H%M")}' # Development
+AUTHOR = 'Yuhui'
+AUTHOR_EMAIL = 'yuhuibc@gmail.com'
 
 __all__ = [
     'Client',
