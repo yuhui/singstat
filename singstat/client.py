@@ -14,7 +14,6 @@
 
 """Client for interacting with the SingStat APIs."""
 
-from cachetools import cached, TTLCache
 from typing import Any
 
 from . import net
@@ -34,7 +33,6 @@ class Client(object):
         https://tablebuilder.singstat.gov.sg/view-api/for-developers
     """
 
-    @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_ONE_DAY))
     @typechecked
     def metadata(self, resource_id: str) -> MetadataDict:
         """Return the metadata of a resource.
@@ -52,7 +50,6 @@ class Client(object):
 
         return metadata
 
-    @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_ONE_DAY))
     @typechecked
     def resource_id(self, **kwargs: Any) -> ResourceIdDict:
         """Search for a list of resources.
@@ -80,7 +77,6 @@ class Client(object):
 
         return resources
 
-    @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_ONE_DAY))
     @typechecked
     def tabledata(self, resource_id: str, **kwargs: Any) -> TabledataDict:
         """Retrieve data in a resource.
