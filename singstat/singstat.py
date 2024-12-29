@@ -140,7 +140,6 @@ class SingStat:
             2-value tuple. The ``dict`` keys are: "between", \
             "dataLastUpdated", "dateGenerated", "limit", "offset", "rowNo", \
             "total"
-        - ``dict`` keys: convert to use Python's snake_case.
 
         :param value: Value to sanitise.
         :type value: Any
@@ -163,16 +162,10 @@ class SingStat:
         elif iterate and isinstance(value, dict):
             sanitised_value = {}
             for k, v in value.items():
-                # Convert dict key to snake_case.
-                # Ref: https://www.geeksforgeeks.org/python-program-to-convert-camel-case-string-to-snake-case/
-                key = ''.join(
-                    ['_' + i.lower() if i.isupper() else i for i in k]
-                ).lstrip('_')
-
                 if k in DATA_KEYS_TO_SANITISE or isinstance(v, (dict, list)):
-                    sanitised_value[key] = self.sanitise_data(v, iterate=iterate)
+                    sanitised_value[k] = self.sanitise_data(v, iterate=iterate)
                 else:
-                    sanitised_value[key] = v
+                    sanitised_value[k] = v
         elif isinstance(value, str):
             try:
                 # pylint: disable=broad-exception-caught
@@ -255,11 +248,10 @@ class SingStat:
         except ValueError:
             pass
 
-        data_count = response_json['DataCount'] \
-            if 'DataCount' in response_json else 0
-
         data = self.sanitise_data(response_json) if sanitise else response_json
 
+        data_count = response_json['DataCount'] \
+            if 'DataCount' in response_json else 0
         if data_count == 0:
             raise APIError('No data records returned', data=response_json)
 

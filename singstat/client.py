@@ -57,8 +57,8 @@ class Client(SingStat):
         metadata_endpoint = f'{METADATA_ENDPOINT}/{resource_id}'
         metadata = self.send_request(metadata_endpoint)
 
-        data_count = metadata['data_count']
-        records = metadata['data']['records']
+        data_count = metadata['DataCount']
+        records = metadata['Data']['records']
 
         if data_count == 1 and len(records) == 0:
             warn('Empty data set returned', RuntimeWarning)
@@ -102,8 +102,8 @@ class Client(SingStat):
 
         resources = self.send_request(RESOURCE_ID_ENDPOINT, params)
 
-        data_count = resources['data_count']
-        total = resources['data']['total']
+        data_count = resources['DataCount']
+        total = resources['Data']['total']
 
         if data_count == 1 and total == 0:
             warn('Empty data set returned', RuntimeWarning)
@@ -189,8 +189,8 @@ class Client(SingStat):
         tabledata_endpoint = f'{TABLEDATA_ENDPOINT}/{resource_id}'
         tabledata = self.send_request(tabledata_endpoint, params)
 
-        data_count = tabledata['data_count']
-        rows = tabledata['data']['row']
+        data_count = tabledata['DataCount']
+        rows = tabledata['Data']['row']
 
         if data_count == 1 and len(rows) == 0:
             warn('Empty data set returned', RuntimeWarning)
