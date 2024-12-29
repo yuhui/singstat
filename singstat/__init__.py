@@ -18,7 +18,7 @@ from .client import Client
 from .types import Url
 
 NAME = 'singstat'
-VERSION = '2.0.1' # Production
+VERSION = '2.0.2' # Production
 # VERSION = f'{VERSION}.{datetime.now().strftime("%Y%m%d%H%M")}' # Development
 AUTHOR = 'Yuhui'
 AUTHOR_EMAIL = 'yuhuibc@gmail.com'

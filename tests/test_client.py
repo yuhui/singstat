@@ -24,7 +24,6 @@ from requests_cache import CachedSession
 from typeguard import check_type
 
 from singstat import Client
-from singstat.exceptions import APIError
 from singstat.types import MetadataDict, ResourceIdDict, TabledataDict
 
 from .mocks.api_response_empty_data import (
