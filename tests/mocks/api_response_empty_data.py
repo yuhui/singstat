@@ -24,7 +24,7 @@ class APIResponseEmptyMetadata:
     @staticmethod
     def json():
         return {
-            'data': {
+            'Data': {
                 'generatedBy': 'SingStat Table Builder',
                 'dateGenerated': date(2024, 12, 1),
                 'records': {},
@@ -40,7 +40,7 @@ class APIResponseEmptyTabledata:
     @staticmethod
     def json():
         return {
-            'data': {
+            'Data': {
                 'generatedBy': 'SingStat Table Builder',
                 'dateGenerated': date(2024, 12, 1),
                 'row': [],

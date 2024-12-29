@@ -132,12 +132,12 @@ def test_build_params_with_bad_inputs(client, original_params, default_params):
                 'value_date': '1/7/2019',
                 'value_list': [1, '2', {
                     'between': 'foo,77',
-                    'data_last_updated': date(2021, 3, 12),
+                    'dataLastUpdated': date(2021, 3, 12),
                 }],
                 'value_dict': {
                     'key1': '316',
                     'between': (45, 89),
-                    'date_generated': date(2024, 12, 1),
+                    'dateGenerated': date(2024, 12, 1),
                 },
             },
         ),

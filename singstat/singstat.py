@@ -18,7 +18,7 @@ from typing import Any, Optional
 
 from requests import codes as requests_codes
 from requests.adapters import HTTPAdapter, Retry
-from requests_cache import CachedSession
+from requests_cache import BaseCache, CachedSession
 from typeguard import check_type, typechecked
 
 from .constants import (
@@ -44,6 +44,11 @@ class SingStat:
     - Cache to expire after 12 hours.
     - User-agent header.
 
+    :param cache_backend: Cache backend name or instance to use. Refer to \
+        https://requests-cache.readthedocs.io/en/stable/user_guide/backends.html \
+        for more information and allowed values. Defaults to "sqlite".
+    :type cache_backend: str | BaseCache
+
     :param is_test_api: Whether to use SingStat's test API. If this is set to \
         True, then ``isTestApi=true`` is added to the parameters when calling \
         ``send_request()``. Defaults to False.
@@ -53,19 +58,24 @@ class SingStat:
     is_test_api: bool
 
     @typechecked
-    def __init__(self, is_test_api: bool=False) -> None:
+    def __init__(
+        self,
+        cache_backend: str | BaseCache='sqlite',
+        is_test_api: bool=False,
+    ) -> None:
         """Constructor method"""
         self.is_test_api = is_test_api
 
-        expire_after = CACHE_TWELVE_HOURS
         retries = Retry(
             total=5,
             backoff_factor=0.1,
             status_forcelist=[500, 502, 503, 504]
         )
 
+        expire_after = CACHE_TWELVE_HOURS
         self.session = CachedSession(
             CACHE_NAME,
+            backend=cache_backend,
             expire_after=expire_after,
             stale_if_error=False,
         )
@@ -140,7 +150,6 @@ class SingStat:
             2-value tuple. The ``dict`` keys are: "between", \
             "dataLastUpdated", "dateGenerated", "limit", "offset", "rowNo", \
             "total"
-        - ``dict`` keys: convert to use Python's snake_case.
 
         :param value: Value to sanitise.
         :type value: Any
@@ -163,16 +172,10 @@ class SingStat:
         elif iterate and isinstance(value, dict):
             sanitised_value = {}
             for k, v in value.items():
-                # Convert dict key to snake_case.
-                # Ref: https://www.geeksforgeeks.org/python-program-to-convert-camel-case-string-to-snake-case/
-                key = ''.join(
-                    ['_' + i.lower() if i.isupper() else i for i in k]
-                ).lstrip('_')
-
                 if k in DATA_KEYS_TO_SANITISE or isinstance(v, (dict, list)):
-                    sanitised_value[key] = self.sanitise_data(v, iterate=iterate)
+                    sanitised_value[k] = self.sanitise_data(v, iterate=iterate)
                 else:
-                    sanitised_value[key] = v
+                    sanitised_value[k] = v
         elif isinstance(value, str):
             try:
                 # pylint: disable=broad-exception-caught
@@ -255,11 +258,10 @@ class SingStat:
         except ValueError:
             pass
 
-        data_count = response_json['DataCount'] \
-            if 'DataCount' in response_json else 0
-
         data = self.sanitise_data(response_json) if sanitise else response_json
 
+        data_count = response_json['DataCount'] \
+            if 'DataCount' in response_json else 0
         if data_count == 0:
             raise APIError('No data records returned', data=response_json)
 
