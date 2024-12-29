@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[2.0.2] - 2024-12-29
+--------------------
+
+Changed
+^^^^^^^
+
+- Don't convert response keys from camelCase to snake_case, i.e. leave the keys untouched.
+    - ``Client``'s methods' argument names are still required to be in snake_case.
+
 [2.0.1] - 2024-12-26
 --------------------
 
