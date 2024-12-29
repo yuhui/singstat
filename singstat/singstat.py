@@ -18,7 +18,7 @@ from typing import Any, Optional
 
 from requests import codes as requests_codes
 from requests.adapters import HTTPAdapter, Retry
-from requests_cache import CachedSession
+from requests_cache import BaseCache, CachedSession
 from typeguard import check_type, typechecked
 
 from .constants import (
@@ -44,6 +44,11 @@ class SingStat:
     - Cache to expire after 12 hours.
     - User-agent header.
 
+    :param cache_backend: Cache backend name or instance to use. Refer to \
+        https://requests-cache.readthedocs.io/en/stable/user_guide/backends.html \
+        for more information and allowed values. Defaults to "sqlite".
+    :type cache_backend: str | BaseCache
+
     :param is_test_api: Whether to use SingStat's test API. If this is set to \
         True, then ``isTestApi=true`` is added to the parameters when calling \
         ``send_request()``. Defaults to False.
@@ -53,19 +58,24 @@ class SingStat:
     is_test_api: bool
 
     @typechecked
-    def __init__(self, is_test_api: bool=False) -> None:
+    def __init__(
+        self,
+        cache_backend: str | BaseCache='sqlite',
+        is_test_api: bool=False,
+    ) -> None:
         """Constructor method"""
         self.is_test_api = is_test_api
 
-        expire_after = CACHE_TWELVE_HOURS
         retries = Retry(
             total=5,
             backoff_factor=0.1,
             status_forcelist=[500, 502, 503, 504]
         )
 
+        expire_after = CACHE_TWELVE_HOURS
         self.session = CachedSession(
             CACHE_NAME,
+            backend=cache_backend,
             expire_after=expire_after,
             stale_if_error=False,
         )
