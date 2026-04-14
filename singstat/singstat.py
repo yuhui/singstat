@@ -102,7 +102,7 @@ class SingStat:
 
         :param params_expected_type: The expected type of \
             ``original_params``. Should be one of the importable types from \
-            ``singstat.types_args``.
+            ``singstat.client.types_args``.
         :type params_expected_type: Any
 
         :param original_params: The set of parameters to use for building. \

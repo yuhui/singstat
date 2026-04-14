@@ -15,14 +15,12 @@
 from datetime import datetime
 
 from .client import Client
-from .types import Url
 
 from .author import AUTHOR
 from .version import VERSION
 
 __all__ = [
     'Client',
-    'Url',
 ]
 __author__ = AUTHOR
 __version__ = VERSION

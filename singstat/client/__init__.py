@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2026 Yuhui
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,29 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Constants that can be used anywhere."""
-
-from .version import VERSION
-
-NAME = 'singstat'
-
-BASE_API_DOMAIN = 'https://tablebuilder.singstat.gov.sg'
-BASE_API_ENDPOINT = f'{BASE_API_DOMAIN}/api/table'
-
-CACHE_NAME = f'{NAME}_cache'
-
-CACHE_TWELVE_HOURS = 60 * 60 * 12
-
-USER_AGENT = f'SingStat Python package/{VERSION} https://pypi.org/project/{NAME}'
+from .client import Client
 
 __all__ = [
-    'NAME',
-
-    'BASE_API_ENDPOINT',
-
-    'CACHE_NAME',
-
-    'CACHE_TWELVE_HOURS',
-
-    'USER_AGENT',
+    'Client',
 ]
