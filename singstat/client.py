@@ -66,12 +66,14 @@ class Client(SingStat):
         return metadata
 
     @typechecked
-    def resource_id(self, **kwargs: Any) -> ResourceIdDict:
+    def resource_id(
+        self,
+        **kwargs: Unpack[ResourceIdArgsDict]
+    ) -> ResourceIdDict:
         """Search for a list of resources.
 
         :param kwargs: Key-value arguments to be passed as parameters \
-            to the endpoint URL. Refer to ``ResourceIdArgsDict`` for the \
-            specification of the argument names and types.
+            to the endpoint URL.
         :type kwargs: ResourceIdArgsDict
 
         :raises APIError: ``search_option`` is not "all", "title" or "variable".
@@ -111,15 +113,18 @@ class Client(SingStat):
         return resources
 
     @typechecked
-    def tabledata(self, resource_id: str, **kwargs: Any) -> TabledataDict:
+    def tabledata(
+        self,
+        resource_id: str,
+        **kwargs: Unpack[TabledataArgsDict]
+    ) -> TabledataDict:
         """Retrieve data in a resource.
 
         :param resource_id: ID of the resource.
         :type resource_id: str
 
         :param kwargs: Key-value arguments to be passed as parameters \
-            to the endpoint URL. Refer to ``TabledataArgsDict`` for the \
-            specification of the argument names and types.
+            to the endpoint URL.
         :type kwargs: TabledataArgsDict
 
         :raises APIError: ``between`` tuple has at least one value that is \

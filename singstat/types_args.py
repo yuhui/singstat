@@ -14,11 +14,7 @@
 
 """SingStat custom types for client methods' arguments."""
 
-from typing import NotRequired
-try:
-    from typing import TypedDict
-except ImportError:
-    TypedDict = dict
+from typing import NotRequired, TypedDict
 
 # metadata() does not have any input parameters
 
@@ -38,7 +34,6 @@ class ResourceIdArgsDict(TypedDict):
 
     :default: "all"
     """
-
 
 class TabledataArgsDict(TypedDict):
     """Type definition for tabledata() input parameters"""
