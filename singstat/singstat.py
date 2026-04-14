@@ -14,7 +14,8 @@
 
 """Client mixin for interacting with all of the API endpoints."""
 
-from typing import Any, Optional
+from datetime import date, datetime
+from typing import Any
 
 from requests import codes as requests_codes
 from requests.adapters import HTTPAdapter, Retry
@@ -92,45 +93,70 @@ class SingStat:
     def build_params(
         self,
         params_expected_type: Any,
-        original_params: dict,
-        default_params: dict | None=None,
-    ) -> dict:
+        original_params: Any,
+        default_params: Any | None=None,
+        key_map: dict[str, str] | None=None,
+        remove_none_values: bool=True,
+    ) -> dict[str, Any]:
         """Build the list of parameters that are compatible for use with the \
-            endpoint URLs, e.g. camelCase parameter names instead of Python's \
-            snake_case.
+            endpoint URLs, e.g. datetime objects to strings.
 
         :param params_expected_type: The expected type of \
             ``original_params``. Should be one of the importable types from \
             ``singstat.types_args``.
         :type params_expected_type: Any
 
-        :param original_params: The set of parameters to use for building.
-        :type original_params: dict
+        :param original_params: The set of parameters to use for building. \
+            Should be of the same type as what is specified in \
+            ``params_expected_type``.
+        :type original_params: Any
 
         :param default_params: The set of parameters' default values. Should \
             be of the same type as what is specified in \
-            ``params_expected_type``. Defaults to None.
-        :type default_params: dict or None
+            ``params_expected_type``. Defaults to ``{}``, i.e. empty ``dict``.
+        :type default_params: dict[str, Any] or None
+
+        :param key_map: Mapping of keys used in ``params_expected_types`` to \
+            parameters expected by the endpoint. Defaults to ``{}``, i.e. \
+            empty ``dict``.
+        :type key_map: dict[str, str] or None
+
+        :param remove_none_values: If True, then parameters with ``None`` \
+            values are removed from the returned parameters. Defaults to \
+            ``True``.
+        :type remove_none_values: bool
 
         :return: The set of parameters that can be used with the API endpoints.
-        :rtype: dict
+        :rtype: dict[str, Any]
         """
         if default_params is None:
             default_params = {}
+        if key_map is None:
+            key_map = {}
+
         joined_params = default_params | original_params
+        if remove_none_values:
+            joined_params = {
+                k: v \
+                    for k, v in joined_params.items() if v is not None
+            }
 
         # Ensure that the parameters match the expected input parameter types.
         _ = check_type(joined_params, params_expected_type)
 
-        params: dict = {}
+        params: dict[str, Any] = {}
         for key, value in joined_params.items():
-            # Convert the snake_case key to camelCase param
-            # because that is what the endpoints require.
-            # Ref: https://www.geeksforgeeks.org/python-convert-snake-case-string-to-camel-case/
-            words = key.split('_')
-            param = words[0] + ''.join(word.title() for word in words[1:])
+            param_key = key_map[key] if key in key_map else key
 
-            params[param] = value
+            # Convert date and datetime to ISO format strings
+            # Leave all other types as-is
+            # IMPORTANT! Test for `datetime` before `date`!
+            if isinstance(value, datetime):
+                params[param_key] = value.strftime('%Y-%m-%dT%H:%M:%S')
+            elif isinstance(value, date):
+                params[param_key] = value.strftime('%Y-%m-%d')
+            else:
+                params[param_key] = value
 
         return params
 

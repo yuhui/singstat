@@ -25,12 +25,20 @@ METADATA_ENDPOINT = f'{BASE_API_ENDPOINT}/metadata'
 RESOURCE_ID_ENDPOINT = f'{BASE_API_ENDPOINT}/resourceid'
 TABLEDATA_ENDPOINT = f'{BASE_API_ENDPOINT}/tabledata'
 
+RESOURCE_ID_ARGS_KEY_MAP = {
+    'search_option': 'searchOption',
+}
 RESOURCE_ID_DEFAULT_ARGS = {
     'keyword': '%',
     'search_option': 'all',
 }
 RESOURCE_ID_SEARCH_OPTIONS = ('all', 'title', 'variable')
 
+TABLEDATA_ARGS_KEY_MAP = {
+    'series_no_or_row_no': 'seriesNoOrRowNo',
+    'sort_by': 'sortBy',
+    'time_filter': 'timeFilter',
+}
 TABLEDATA_SORT_BY_REGEXP = r'^(key|value|seriesNo|rowNo|rowText) (asc|desc)$'
 
 DATA_KEYS_TO_SANITISE = (
@@ -56,9 +64,11 @@ __all__ = [
     'RESOURCE_ID_ENDPOINT',
     'TABLEDATA_ENDPOINT',
 
+    'RESOURCE_ID_ARGS_KEY_MAP',
     'RESOURCE_ID_DEFAULT_ARGS',
     'RESOURCE_ID_SEARCH_OPTIONS',
 
+    'TABLEDATA_ARGS_KEY_MAP',
     'TABLEDATA_SORT_BY_REGEXP',
 
     'DATA_KEYS_TO_SANITISE',

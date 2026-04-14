@@ -16,6 +16,7 @@
 
 import re
 from typing import Any
+from typing import Unpack
 from warnings import warn
 
 from typeguard import typechecked
@@ -24,10 +25,14 @@ from .constants import (
     CACHE_TWELVE_HOURS,
 
     METADATA_ENDPOINT,
-    RESOURCE_ID_DEFAULT_ARGS,
     RESOURCE_ID_ENDPOINT,
-    RESOURCE_ID_SEARCH_OPTIONS,
     TABLEDATA_ENDPOINT,
+
+    RESOURCE_ID_ARGS_KEY_MAP,
+    RESOURCE_ID_DEFAULT_ARGS,
+    RESOURCE_ID_SEARCH_OPTIONS,
+
+    TABLEDATA_ARGS_KEY_MAP,
     TABLEDATA_SORT_BY_REGEXP,
 )
 from .singstat import SingStat
@@ -105,6 +110,7 @@ class Client(SingStat):
             params_expected_type=ResourceIdArgsDict,
             original_params=kwargs,
             default_params=RESOURCE_ID_DEFAULT_ARGS,
+            key_map=RESOURCE_ID_ARGS_KEY_MAP,
         )
 
         resources = self.send_request(
@@ -185,6 +191,7 @@ class Client(SingStat):
         params = self.build_params(
             params_expected_type=TabledataArgsDict,
             original_params=kwargs,
+            key_map=TABLEDATA_ARGS_KEY_MAP,
         )
 
         # Convert parameters to have the values that the endpoint expects
