@@ -14,6 +14,10 @@
 
 """Constants that can be used anywhere."""
 
+from .version import VERSION
+
+NAME = 'singstat'
+
 BASE_API_DOMAIN = 'https://tablebuilder.singstat.gov.sg'
 BASE_API_ENDPOINT = f'{BASE_API_DOMAIN}/api/table'
 
@@ -39,11 +43,15 @@ DATA_KEYS_TO_SANITISE = (
     'total',
 )
 
-CACHE_NAME = 'singstat_cache'
+CACHE_NAME = f'{NAME}_cache'
+
 CACHE_TWELVE_HOURS = 60 * 60 * 12
-USER_AGENT = f'SingStat Python package/2.0.1 https://pypi.org/project/singstat'
+
+USER_AGENT = f'SingStat Python package/{VERSION} https://pypi.org/project/{NAME}'
 
 __all__ = [
+    'NAME',
+
     'METADATA_ENDPOINT',
     'RESOURCE_ID_ENDPOINT',
     'TABLEDATA_ENDPOINT',
@@ -56,6 +64,7 @@ __all__ = [
     'DATA_KEYS_TO_SANITISE',
 
     'CACHE_NAME',
+
     'CACHE_TWELVE_HOURS',
 
     'USER_AGENT',
