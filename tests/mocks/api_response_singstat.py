@@ -1,4 +1,4 @@
-# Copyright 2024 Yuhui. All rights reserved.
+# Copyright 2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,20 +14,28 @@
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
-"""Mock response to return a response without any data records."""
+"""Mock responses for the SingStat module."""
 
-class APIResponseZeroData:
+class APIResponseSendRequest:
     status_code = 200
 
     @staticmethod
     def json():
         return {
-            'Data': 'No records found',
-            'DataCount': 0,
+            'Data': {
+                'generatedBy': 'SingStat Table Builder',
+                'records': {
+                    'foo': 'bar',
+                    'number': '42',
+                    'may_ignore': '37,81',
+                    'may_ignore_too': '123.456',
+                },
+            },
+            'DataCount': 1,
             'StatusCode': 200,
             'Message': '',
         }
 
 __all__ = [
-    'APIResponseZeroData',
+    'APIResponseSendRequest',
 ]
