@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2019-2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ def datetime_from_string(val: str) -> datetime | date | time:
     :param val: String to convert to a datetime.
     :type val: str
 
-    :raises ValueError: "val" is not a recognised datetime string.
+    :raises ValueError: ``val`` is not a recognised datetime string.
 
     :return: The value as a ``datetime``, or ``date`` if there is no time, or \
         ``time`` if there is no date.

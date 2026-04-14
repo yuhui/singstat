@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2019-2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ from .timezone import datetime_from_string
 from .types import Url
 
 class SingStat:
-    """Common library for other API Clients.
+    """Client mixin for other API Clients.
 
     Normally, it does not need to be created by applications. But \
         applications may use the public methods provided here.
@@ -45,12 +45,12 @@ class SingStat:
 
     :param cache_backend: Cache backend name or instance to use. Refer to \
         https://requests-cache.readthedocs.io/en/stable/user_guide/backends.html \
-        for more information and allowed values. Defaults to "sqlite".
+        for more information and allowed values. Defaults to ``"sqlite"``.
     :type cache_backend: str | BaseCache
 
     :param is_test_api: Whether to use SingStat's test API. If this is set to \
-        True, then ``isTestApi=true`` is added to the parameters when calling \
-        ``send_request()``. Defaults to False.
+        ``True``, then ``isTestApi=true`` is added to the parameters when \
+        calling ``send_request()``. Defaults to ``False``.
     :type is_test_api: bool
     """
 
@@ -86,7 +86,7 @@ class SingStat:
     @typechecked
     def __repr__(self) -> str:
         """String representation"""
-        return f'{self.__class__}'
+        return f'{self.__class__} ({USER_AGENT})'
 
     @typechecked
     def build_params(
@@ -266,12 +266,12 @@ class SingStat:
     def send_request(
         self,
         url: Url,
-        params: Optional[dict]=None,
+        params: dict[str, Any] | None=None,
         cache_duration: int=0,
         sanitise: bool=True,
         sanitise_ignore_keys: list[str] | None=None,
     ) -> Any:
-        """Send a request to an endpoint.
+        """Send a request to an endpoint and return its response.
 
         Normally, this method does not need to be called directly. However, \
             if SingStat were to change their API specification but this \
@@ -288,8 +288,8 @@ class SingStat:
         :param params: List of parameters to be passed to the endpoint URL. \
             Parameter names **must** match the names required by the \
             endpoints, particularly with typecase (e.g. camelCase). Defaults \
-            to None.
-        :type params: dict
+            to ``{}``, i.e. empty ``dict``.
+        :type params: dict[str, Any] or None
 
         :param cache_duration: Number of seconds before the cache expires. \
             Defaults to ``0``, i.e. do not cache.
@@ -308,7 +308,10 @@ class SingStat:
         :raises APIError: "No data records returned." when count of data is 0.
         :raises APIError: "One or more validation errors occurred." when HTTP \
             400 status is returned.
-        :raises HTTPError: Error occurred during the request process.
+        :raises requests.exceptions.HTTPError: Error occurred during the \
+            request process.
+        :raises requests.exceptions.JSONDecodeError: Error occurred when \
+            JSON-parsing the response.
 
         :return: Response JSON content of the request.
         :rtype: Any
@@ -358,7 +361,10 @@ class SingStat:
         :raises APIError: "No data records returned." when count of data is 0.
         :raises APIError: "One or more validation errors occurred." when HTTP \
             400 status is returned.
-        :raises HTTPError: Error occurred during the request process.
+        :raises requests.exceptions.HTTPError: Error occurred during the \
+            request process.
+        :raises requests.exceptions.JSONDecodeError: Error occurred when \
+            JSON-parsing the response.
 
         :return: Results from the response.
         :rtype: Any
