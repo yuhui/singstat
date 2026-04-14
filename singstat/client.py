@@ -21,6 +21,8 @@ from warnings import warn
 from typeguard import typechecked
 
 from .constants import (
+    CACHE_TWELVE_HOURS,
+
     METADATA_ENDPOINT,
     RESOURCE_ID_DEFAULT_ARGS,
     RESOURCE_ID_ENDPOINT,
@@ -55,7 +57,10 @@ class Client(SingStat):
         metadata: MetadataDict
 
         metadata_endpoint = f'{METADATA_ENDPOINT}/{resource_id}'
-        metadata = self.send_request(metadata_endpoint)
+        metadata = self.send_request(
+            metadata_endpoint,
+            cache_duration=CACHE_TWELVE_HOURS,
+        )
 
         data_count = metadata['DataCount']
         records = metadata['Data']['records']
@@ -102,7 +107,11 @@ class Client(SingStat):
             default_params=RESOURCE_ID_DEFAULT_ARGS,
         )
 
-        resources = self.send_request(RESOURCE_ID_ENDPOINT, params)
+        resources = self.send_request(
+            RESOURCE_ID_ENDPOINT,
+            params=params,
+            cache_duration=CACHE_TWELVE_HOURS,
+        )
 
         data_count = resources['DataCount']
         total = resources['Data']['total']
@@ -192,7 +201,11 @@ class Client(SingStat):
             params['timeFilter'] = ','.join(params['timeFilter'])
 
         tabledata_endpoint = f'{TABLEDATA_ENDPOINT}/{resource_id}'
-        tabledata = self.send_request(tabledata_endpoint, params)
+        tabledata = self.send_request(
+            tabledata_endpoint,
+            params=params,
+            cache_duration=CACHE_TWELVE_HOURS,
+        )
 
         data_count = tabledata['DataCount']
         rows = tabledata['Data']['row']

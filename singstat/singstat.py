@@ -23,7 +23,6 @@ from typeguard import check_type, typechecked
 
 from .constants import (
     CACHE_NAME,
-    CACHE_TWELVE_HOURS,
     DATA_KEYS_TO_SANITISE,
     USER_AGENT,
 )
@@ -41,7 +40,7 @@ class SingStat:
 
     - Connection retries using exponential backoff. \
         (Reference: https://stackoverflow.com/a/35504626.)
-    - Cache to expire after 12 hours.
+    - Cache (cache duration/expiry is set in ``send_request()``).
     - User-agent header.
 
     :param cache_backend: Cache backend name or instance to use. Refer to \
@@ -64,6 +63,10 @@ class SingStat:
         is_test_api: bool=False,
     ) -> None:
         """Constructor method"""
+        headers = {
+            'Accept': 'application/json',
+            'User-Agent': USER_AGENT,
+        }
         self.is_test_api = is_test_api
 
         retries = Retry(
@@ -72,18 +75,13 @@ class SingStat:
             status_forcelist=[500, 502, 503, 504]
         )
 
-        expire_after = CACHE_TWELVE_HOURS
         self.session = CachedSession(
             CACHE_NAME,
             backend=cache_backend,
-            expire_after=expire_after,
             stale_if_error=False,
         )
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
-        self.session.headers.update({
-            'Accept': 'application/json',
-            'User-Agent': USER_AGENT,
-        })
+        self.session.headers.update(headers)
 
     @typechecked
     def __repr__(self) -> str:
@@ -207,6 +205,7 @@ class SingStat:
         self,
         url: Url,
         params: Optional[dict]=None,
+        cache_duration: int=0,
         sanitise: bool=True,
     ) -> Any:
         """Send a request to an endpoint.
@@ -229,11 +228,17 @@ class SingStat:
             to None.
         :type params: dict
 
+        :param cache_duration: Number of seconds before the cache expires. \
+            Defaults to ``0``, i.e. do not cache.
+        :type cache_duration: int
+
         :param sanitise: If true, then the response's values are sanitised \
             using the ``sanitise_data()`` method. Defaults to True.
         :type iterate: bool
 
-        :raises APIError: "No data records returned" when count of data is 0.
+        :raises APIError: "No data records returned." when count of data is 0.
+        :raises APIError: "One or more validation errors occurred." when HTTP \
+            400 status is returned.
         :raises HTTPError: Error occurred during the request process.
 
         :return: Response JSON content of the request.
@@ -248,24 +253,79 @@ class SingStat:
         if self.is_test_api:
             params['isTestApi'] = 'true'
 
-        response = self.session.get(url, params=params)
-        if response.status_code != requests_codes['ok']:
-            response.raise_for_status()
-
-        response_json = {}
-        try:
-            response_json = response.json()
-        except ValueError:
-            pass
+        response_val = self.__collect_response_value(
+            url,
+            params=params,
+            cache_duration=cache_duration,
+        )
 
         data = self.sanitise_data(response_json) if sanitise else response_json
 
-        data_count = response_json['DataCount'] \
-            if 'DataCount' in response_json else 0
-        if data_count == 0:
-            raise APIError('No data records returned', data=response_json)
-
         return data
+
+# private
+
+    @typechecked
+    def __collect_response_value(
+        self,
+        url: Url,
+        params: dict,
+        cache_duration: int,
+    ) -> Any:
+        """Collect response value from an endpoint.
+
+        :param url: The endpoint URL to send the request to.
+        :type url: Url
+
+        :param params: List of parameters to be passed to the endpoint URL.
+        :type params: dict
+
+        :param cache_duration: Number of seconds before the cache expires.
+        :type cache_duration: int
+
+        :raises APIError: "No data records returned." when count of data is 0.
+        :raises APIError: "One or more validation errors occurred." when HTTP \
+            400 status is returned.
+        :raises HTTPError: Error occurred during the request process.
+
+        :return: Results from the response.
+        :rtype: Any
+        """
+        response_value: Any
+
+        response = self.session.get(
+            url,
+            params=params,
+            expire_after=cache_duration,
+        )
+
+        # This may raise JSONDecodeError if the response is not JSON-parsable.
+        response_json = response.json()
+
+        if response.status_code == requests_codes['bad_request']:
+            data = response_json.get('Data', {})
+            error_message = data.get(
+                'title',
+                'One or more validation errors occurred.',
+            )
+            raise APIError(
+                message=error_message,
+                data=response_json,
+            )
+
+        if response.status_code != requests_codes['ok']:
+            response.raise_for_status()
+
+        data_count = response_json.get('DataCount', 0)
+        if data_count == 0:
+            raise APIError(
+                message='No data records returned.',
+                data=response_json,
+            )
+
+        response_value = response_json
+
+        return response_value
 
 __all__ = [
     'SingStat',
