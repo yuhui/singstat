@@ -1,7 +1,25 @@
-singstat.types Response Types
-=============================
+Response Types
+==============
 
-.. automodule:: singstat.types
+.. automodule:: singstat.client.types
+
+Common Types
+------------
+
+.. autoclass:: _DataDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _RecordDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _SingStatDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
 
 resource_id()
 -------------
@@ -30,6 +48,31 @@ metadata()
    :show-inheritance:
 
 .. autoclass:: _MetadataDataDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _MetadataDataRecordsTimeseriesDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _MetadataDataRecordsTimeseriesRowDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _MetadataDataRecordsCrossSectionalMultiDimensionalCubeDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _MetadataDataRecordsCrossSectionalMultiDimensionalCubeColumnDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _MetadataDataRecordsCrossSectionalMultiDimensionalCubeRowDict
    :members:
    :member-order: bysource
    :show-inheritance:
@@ -78,6 +121,16 @@ tabledata()
    :show-inheritance:
 
 .. autoclass:: _TabledataDataRowColumnDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _TabledataDataDict
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
+.. autoclass:: _TabledataDataRowDict
    :members:
    :member-order: bysource
    :show-inheritance:

@@ -20,6 +20,14 @@ singstat.singstat
    :member-order: bysource
    :show-inheritance:
 
+singstat.timezone
+------------------------
+
+.. automodule:: singstat.timezone
+   :members:
+   :member-order: bysource
+   :show-inheritance:
+
 singstat.exceptions
 -------------------
 

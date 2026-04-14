@@ -1,7 +1,7 @@
-singstat.types_args Argument Types
-==================================
+Argument Types
+==============
 
-.. automodule:: singstat.types_args
+.. automodule:: singstat.client.types_args
 
 resource_id()
 -------------

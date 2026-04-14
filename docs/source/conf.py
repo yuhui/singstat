@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2019-2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,16 +28,21 @@
 
 import os
 import sys
+from datetime import date
 
 sys.path.insert(0, os.path.abspath('../..'))
 
-from singstat import NAME, AUTHOR, VERSION
+from singstat.constants import NAME
+from singstat.author import AUTHOR
+from singstat.version import VERSION
 
 
 # -- Project information -----------------------------------------------------
 
 project = NAME
-copyright = f'2019-2024, {AUTHOR}'
+copyright = f'2019-{date.today().year}, {AUTHOR}. All rights reserved.'
+
+author = AUTHOR
 
 # The full version, including alpha/beta/rc tags
 release = VERSION
@@ -51,7 +56,6 @@ release = VERSION
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.napoleon',
 ]
 
 # Intersphinx settings
@@ -64,7 +68,7 @@ templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-source_suffix = '.rst'
+source_suffix = {'.rst': 'restructuredtext'}
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'

@@ -34,7 +34,7 @@ Installing the package
 
 Install the package using ``pip``::
 
-    pip install singstat
+    python -m pip install singstat
 
 Using the package
 -----------------
