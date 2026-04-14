@@ -34,22 +34,36 @@ RESOURCE_ID_DEFAULT_ARGS = {
 }
 RESOURCE_ID_SEARCH_OPTIONS = ('all', 'title', 'variable')
 
+METADATA_SANITISE_IGNORE_KEYS = [
+    'Data.records.id',
+    'Data.records.startPeriod',
+    'Data.records.endPeriod',
+    'Data.records.column1[].columnNo',
+    'Data.records.column2[].columnNo',
+    'Data.records.column3[].columnNo',
+    'Data.records.column4[].columnNo',
+    'Data.records.column5[].columnNo',
+    'Data.records.column6[].columnNo',
+    'Data.records.column7[].columnNo',
+    'Data.records.column8[].columnNo',
+    'Data.records.column9[].columnNo',
+    'Data.records.column10[].columnNo',
+    'Data.records.row[].rowNo',
+    'Data.records.row[].seriesNo',
+]
+
 TABLEDATA_ARGS_KEY_MAP = {
     'series_no_or_row_no': 'seriesNoOrRowNo',
     'sort_by': 'sortBy',
     'time_filter': 'timeFilter',
 }
+TABLEDATA_SANITISE_IGNORE_KEYS = [
+    'Data.id',
+    'Data.row[].columns[].key',
+    'Data.row[].rowNo',
+    'Data.row[].seriesNo',
+]
 TABLEDATA_SORT_BY_REGEXP = r'^(key|value|seriesNo|rowNo|rowText) (asc|desc)$'
-
-DATA_KEYS_TO_SANITISE = (
-    'between',
-    'dataLastUpdated',
-    'dateGenerated',
-    'limit',
-    'offset',
-    'rowNo',
-    'total',
-)
 
 CACHE_NAME = f'{NAME}_cache'
 
@@ -68,10 +82,11 @@ __all__ = [
     'RESOURCE_ID_DEFAULT_ARGS',
     'RESOURCE_ID_SEARCH_OPTIONS',
 
+    'METADATA_SANITISE_IGNORE_KEYS',
+
     'TABLEDATA_ARGS_KEY_MAP',
     'TABLEDATA_SORT_BY_REGEXP',
-
-    'DATA_KEYS_TO_SANITISE',
+    'TABLEDATA_SANITISE_IGNORE_KEYS',
 
     'CACHE_NAME',
 

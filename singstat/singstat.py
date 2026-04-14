@@ -24,7 +24,6 @@ from typeguard import check_type, typechecked
 
 from .constants import (
     CACHE_NAME,
-    DATA_KEYS_TO_SANITISE,
     USER_AGENT,
 )
 from .exceptions import APIError
@@ -165,66 +164,103 @@ class SingStat:
         self,
         value: Any,
         iterate: bool=True,
+        ignore_keys: list[str] | None=None,
+        key_path: str='',
     ) -> Any:
         """Convert the following:
 
+        - If ``iterate`` is ``True`` and ``value`` is a ``dict`` or ``list``: \
+            sanitise the value's contents.
+        - String with commas: convert to a tuple of numbers if all values are \
+            number-like.
         - String that is like date or datetime: convert to ``datetime.date`` \
-            or ``datetime.datetime`` object respectively.
-        - String value of specific ``dict`` keys: convert to integer or \
-            2-value tuple. The ``dict`` keys are: "between", \
-            "dataLastUpdated", "dateGenerated", "limit", "offset", "rowNo", \
-            "total"
+            or ``datetime.datetime`` respectively.
+        - String that is number-like: convert to ``int`` or ``float`` \
+            appropriately.
+        - Finally: leave the value as-is.
 
         :param value: Value to sanitise.
         :type value: Any
 
         :param iterate: If true, then ``list`` and ``dict`` objects are \
-            sanitised recursively. Defaults to True.
+            sanitised recursively. Defaults to ``True``.
         :type iterate: bool
+
+        :param ignore_keys: List of dict keys to ignore when sanitising, if \
+            value is a ``dict``. Defaults to ``[]``, i.e. empty ``list``.
+        :type ignore_keys: list[str] or None
+
+        :param key_path: Current path of key in the ``dict``. Defaults to \
+            blank string.
+        :type key_path: str
 
         :return: The sanitised value.
         :rtype: Any
         """
-        sanitised_value: Any = value
+        if ignore_keys is None:
+            ignore_keys = []
 
-        if iterate and isinstance(value, list):
-            sanitised_value = [
-                self.sanitise_data(v, iterate=iterate) \
-                    if isinstance(v, (list, dict)) else v
-                    for v in value
-            ]
-        elif iterate and isinstance(value, dict):
-            sanitised_value = {}
-            for k, v in value.items():
-                if k in DATA_KEYS_TO_SANITISE or isinstance(v, (dict, list)):
-                    sanitised_value[k] = self.sanitise_data(v, iterate=iterate)
-                else:
-                    sanitised_value[k] = v
-        elif isinstance(value, str):
+        if iterate:
+            if isinstance(value, list):
+                return [
+                    self.sanitise_data(
+                        v,
+                        iterate=iterate,
+                        ignore_keys=ignore_keys,
+                        key_path=f'{key_path}[]'
+                    ) for v in value
+                ]
+
+            if isinstance(value, dict):
+                sanitised_dict = {}
+                for k, v in value.items():
+                    current_key_path = '.'.join([key_path, k]) \
+                        if key_path else k
+                    if current_key_path in ignore_keys:
+                        sanitised_dict[k] = v
+                    else:
+                        sanitised_dict[k] = self.sanitise_data(
+                            v,
+                            iterate=iterate,
+                            ignore_keys=ignore_keys,
+                            key_path=current_key_path,
+                        )
+                return sanitised_dict
+
+        if not isinstance(value, str):
+            return value
+
+        if ',' in value:
+            # Convert to tuple with numbers.
+            split_value = value.split(',')
+            tuple_value = tuple(
+                self.sanitise_data(
+                    v.strip(),
+                    iterate=False,
+                ) for v in split_value
+            )
+            values_are_int = all(isinstance(v, int) for v in tuple_value)
+            values_are_float = all(isinstance(v, float) for v in tuple_value)
+            if (values_are_int or values_are_float):
+                return tuple_value
+
+        try:
+            # pylint: disable=broad-exception-caught
+
+            # Convert to a date/datetime.
+            return datetime_from_string(value)
+        except Exception:
             try:
-                # pylint: disable=broad-exception-caught
-
-                # Convert to a date/datetime.
-                sanitised_value = datetime_from_string(value)
+                # Convert to an integer
+                return int(value)
             except Exception:
                 try:
-                    # Convert to an integer
-                    sanitised_value = int(value)
+                    # Convert to a float
+                    return float(value)
                 except Exception:
-                    try:
-                        # Convert to tuple with 2 integer values.
-                        split_value = value.split(',')
-                        if len(split_value) == 2:
-                            tuple_value = tuple(
-                                self.sanitise_data(v.strip(), iterate=False) \
-                                    for v in split_value
-                            )
-                            if all((isinstance(v, int) for v in tuple_value)):
-                                sanitised_value = tuple_value
-                    except Exception:
-                        pass
+                    pass
 
-        return sanitised_value
+        return value
 
     @typechecked
     def send_request(
@@ -233,6 +269,7 @@ class SingStat:
         params: Optional[dict]=None,
         cache_duration: int=0,
         sanitise: bool=True,
+        sanitise_ignore_keys: list[str] | None=None,
     ) -> Any:
         """Send a request to an endpoint.
 
@@ -258,9 +295,15 @@ class SingStat:
             Defaults to ``0``, i.e. do not cache.
         :type cache_duration: int
 
-        :param sanitise: If true, then the response's values are sanitised \
-            using the ``sanitise_data()`` method. Defaults to True.
+        :param sanitise: If ``True``, then the response's values are \
+            sanitised using the ``sanitise_data()`` method. Defaults to \
+            ``True``.
         :type iterate: bool
+
+        :param sanitise_ignore_keys: List of keys to ignore in the response \
+            value during sanitising when that response value is a ``dict``. \
+            Defaults to ``[]``, i.e. empty ``list``.
+        :type sanitise_ignore_keys: list[str] or None
 
         :raises APIError: "No data records returned." when count of data is 0.
         :raises APIError: "One or more validation errors occurred." when HTTP \
@@ -285,7 +328,10 @@ class SingStat:
             cache_duration=cache_duration,
         )
 
-        data = self.sanitise_data(response_json) if sanitise else response_json
+        data = self.sanitise_data(
+            response_val,
+            ignore_keys=sanitise_ignore_keys,
+        ) if sanitise else response_val
 
         return data
 

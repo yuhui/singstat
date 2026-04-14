@@ -32,7 +32,10 @@ from .constants import (
     RESOURCE_ID_DEFAULT_ARGS,
     RESOURCE_ID_SEARCH_OPTIONS,
 
+    METADATA_SANITISE_IGNORE_KEYS,
+
     TABLEDATA_ARGS_KEY_MAP,
+    TABLEDATA_SANITISE_IGNORE_KEYS,
     TABLEDATA_SORT_BY_REGEXP,
 )
 from .singstat import SingStat
@@ -65,6 +68,7 @@ class Client(SingStat):
         metadata = self.send_request(
             metadata_endpoint,
             cache_duration=CACHE_TWELVE_HOURS,
+            sanitise_ignore_keys=METADATA_SANITISE_IGNORE_KEYS,
         )
 
         data_count = metadata['DataCount']
@@ -212,6 +216,7 @@ class Client(SingStat):
             tabledata_endpoint,
             params=params,
             cache_duration=CACHE_TWELVE_HOURS,
+            sanitise_ignore_keys=TABLEDATA_SANITISE_IGNORE_KEYS,
         )
 
         data_count = tabledata['DataCount']
