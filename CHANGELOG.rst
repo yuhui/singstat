@@ -1,6 +1,21 @@
 Changelog
 =========
 
+[2.1.0] - 2026-04-16
+--------------------
+
+Changed
+^^^^^^^
+
+- Use `Unpack` from `typing` to define argument types.
+- Update typehints according to API specifications.
+- Specify allowed date and datetime string formats.
+- Set datetime correctly in Singapore timezone.
+- Require expected parameter type when building query parameters.
+- Improve data sanitisation. Allow specifying of keys to ignore when sanitising.
+- Set default error message and also mention if `data` and/or `errors` attributes are set in the error.
+- Refactored code to separate ``Client``-specific code into its own module.
+
 [2.0.2] - 2024-12-29
 --------------------
 
@@ -21,7 +36,7 @@ Changed
 [2.0.0] - 2024-12-26
 --------------------
 
-**Alert!** This version was yanked because it requires an incorrect version of Python.
+**Alert!** This version was yanked because it required an incorrect version of Python.
 
 Added
 ^^^^^
@@ -75,4 +90,7 @@ Changed
 [1.0.0] - 2019-08-21
 --------------------
 
-Initial version to interact with SingStat.gov.sg's documented API endpoints as of August 2019.
+Added
+^^^^^
+
+- Initial version to interact with SingStat.gov.sg's documented API endpoints as of August 2019.
