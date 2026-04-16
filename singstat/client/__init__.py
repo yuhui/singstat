@@ -1,4 +1,4 @@
-# Copyright 2019 Yuhui. All rights reserved.
+# Copyright 2026 Yuhui
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,3 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from .client import Client
+
+__all__ = [
+    'Client',
+]

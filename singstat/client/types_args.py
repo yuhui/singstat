@@ -1,4 +1,4 @@
-# Copyright 2024 Yuhui. All rights reserved.
+# Copyright 2024-2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,7 @@
 
 """SingStat custom types for client methods' arguments."""
 
-from typing import NotRequired
-try:
-    from typing import TypedDict
-except ImportError:
-    TypedDict = dict
+from typing import NotRequired, TypedDict
 
 # metadata() does not have any input parameters
 
@@ -38,7 +34,6 @@ class ResourceIdArgsDict(TypedDict):
 
     :default: "all"
     """
-
 
 class TabledataArgsDict(TypedDict):
     """Type definition for tabledata() input parameters"""

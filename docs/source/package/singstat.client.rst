@@ -1,16 +1,16 @@
-singstat.client Client
-======================
+singstat.client
+===============
 
-.. automodule:: singstat.client
+.. automodule:: singstat.client.client
 
 Example usage:
 
 .. code-block:: python
 
-    # list all available packages
+    # search for a resource ID
     from singstat import Client
     client = Client()
-    resources = client.resource_id()
+    resources = client.resource_id(keyword="population", search_option="all")
 
 Methods
 -------
@@ -19,3 +19,12 @@ Methods
    :members:
    :member-order: bysource
    :show-inheritance:
+
+Types
+-----
+
+.. toctree::
+   :maxdepth: 1
+
+   singstat.client.types_args
+   singstat.client.types

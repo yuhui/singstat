@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2019-2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,20 +15,29 @@
 """Client for interacting with the SingStat API endpoints."""
 
 import re
-from typing import Any
+from typing import Unpack
 from warnings import warn
 
 from typeguard import typechecked
 
+from ..constants import CACHE_TWELVE_HOURS
+from ..singstat import SingStat
+
 from .constants import (
     METADATA_ENDPOINT,
-    RESOURCE_ID_DEFAULT_ARGS,
     RESOURCE_ID_ENDPOINT,
-    RESOURCE_ID_SEARCH_OPTIONS,
     TABLEDATA_ENDPOINT,
+
+    RESOURCE_ID_ARGS_KEY_MAP,
+    RESOURCE_ID_DEFAULT_ARGS,
+    RESOURCE_ID_SEARCH_OPTIONS,
+
+    METADATA_SANITISE_IGNORE_KEYS,
+
+    TABLEDATA_ARGS_KEY_MAP,
+    TABLEDATA_SANITISE_IGNORE_KEYS,
     TABLEDATA_SORT_BY_REGEXP,
 )
-from .singstat import SingStat
 from .types_args import ResourceIdArgsDict, TabledataArgsDict
 from .types import MetadataDict, ResourceIdDict, TabledataDict
 
@@ -46,8 +55,8 @@ class Client(SingStat):
         :param resource_id: ID of the resource.
         :type resource_id: str
 
-        :warns RuntimeWarning: "Empty data set returned" when ``data_count`` \
-            is 1 but ``data.records`` is empty.
+        :warns RuntimeWarning: "Empty data set returned" when response's \
+            ``Data.records`` list has 0 items.
 
         :return: Metadata of the requested resource.
         :rtype: MetadataDict
@@ -55,29 +64,34 @@ class Client(SingStat):
         metadata: MetadataDict
 
         metadata_endpoint = f'{METADATA_ENDPOINT}/{resource_id}'
-        metadata = self.send_request(metadata_endpoint)
+        metadata = self.send_request(
+            metadata_endpoint,
+            cache_duration=CACHE_TWELVE_HOURS,
+            sanitise_ignore_keys=METADATA_SANITISE_IGNORE_KEYS,
+        )
 
-        data_count = metadata['DataCount']
         records = metadata['Data']['records']
-
-        if data_count == 1 and len(records) == 0:
+        if len(records) == 0:
             warn('Empty data set returned', RuntimeWarning)
 
         return metadata
 
     @typechecked
-    def resource_id(self, **kwargs: Any) -> ResourceIdDict:
+    def resource_id(
+        self,
+        **kwargs: Unpack[ResourceIdArgsDict]
+    ) -> ResourceIdDict:
         """Search for a list of resources.
 
         :param kwargs: Key-value arguments to be passed as parameters \
-            to the endpoint URL. Refer to ``ResourceIdArgsDict`` for the \
-            specification of the argument names and types.
+            to the endpoint URL.
         :type kwargs: ResourceIdArgsDict
 
-        :raises APIError: ``search_option`` is not "all", "title" or "variable".
+        :raises APIError: ``search_option`` is not ``"all"``, ``"title"`` or \
+            ``"variable"``.
 
-        :warns RuntimeWarning: "Empty data set returned" when ``data_count`` \
-            is 1 but ``data.total`` is 0.
+        :warns RuntimeWarning: "Empty data set returned" when response's \
+            ``Data.total`` is 0.
 
         :return: List of resources.
         :rtype: ResourceIdDict
@@ -89,37 +103,43 @@ class Client(SingStat):
             'search_option' in kwargs
             and kwargs['search_option'] not in RESOURCE_ID_SEARCH_OPTIONS
         ):
-            search_options = ('", "').join(RESOURCE_ID_SEARCH_OPTIONS)
+            search_options = f'"{('", "').join(RESOURCE_ID_SEARCH_OPTIONS)}"'
             raise ValueError(
-                f'Argument "search_option" must be one of "{search_options}".'
+                f'Argument "search_option" must be one of {search_options}.'
             )
 
         params = self.build_params(
             params_expected_type=ResourceIdArgsDict,
             original_params=kwargs,
             default_params=RESOURCE_ID_DEFAULT_ARGS,
+            key_map=RESOURCE_ID_ARGS_KEY_MAP,
         )
 
-        resources = self.send_request(RESOURCE_ID_ENDPOINT, params)
+        resources = self.send_request(
+            RESOURCE_ID_ENDPOINT,
+            params=params,
+            cache_duration=CACHE_TWELVE_HOURS,
+        )
 
-        data_count = resources['DataCount']
         total = resources['Data']['total']
-
-        if data_count == 1 and total == 0:
+        if total == 0:
             warn('Empty data set returned', RuntimeWarning)
 
         return resources
 
     @typechecked
-    def tabledata(self, resource_id: str, **kwargs: Any) -> TabledataDict:
+    def tabledata(
+        self,
+        resource_id: str,
+        **kwargs: Unpack[TabledataArgsDict]
+    ) -> TabledataDict:
         """Retrieve data in a resource.
 
         :param resource_id: ID of the resource.
         :type resource_id: str
 
         :param kwargs: Key-value arguments to be passed as parameters \
-            to the endpoint URL. Refer to ``TabledataArgsDict`` for the \
-            specification of the argument names and types.
+            to the endpoint URL.
         :type kwargs: TabledataArgsDict
 
         :raises APIError: ``between`` tuple has at least one value that is \
@@ -131,8 +151,8 @@ class Client(SingStat):
         :raises APIError: ``sort_by`` does not match the regular expression \
             ``r'^(key|value|seriesNo|rowNo|rowText) (asc|desc)$'``.
 
-        :warns RuntimeWarning: "Empty data set returned" when ``data_count`` \
-            is 1 but ``data.row`` is empty.
+        :warns RuntimeWarning: "Empty data set returned" when response's \
+            ``Data.row`` list has 0 items.
 
         :return: Records of data that match the search criteria.
         :rtype: TabledataDict
@@ -160,10 +180,9 @@ class Client(SingStat):
             raise ValueError('argument "offset" must be 0 or greater.')
 
         if (
-            'sort_by' in kwargs
-            and re.fullmatch(
+            'sort_by' in kwargs and re.fullmatch(
                 TABLEDATA_SORT_BY_REGEXP,
-                kwargs['sort_by']
+                kwargs['sort_by'],
             ) is None
         ):
             raise ValueError('argument "sort_by" has invalid sort criteria.')
@@ -171,6 +190,7 @@ class Client(SingStat):
         params = self.build_params(
             params_expected_type=TabledataArgsDict,
             original_params=kwargs,
+            key_map=TABLEDATA_ARGS_KEY_MAP,
         )
 
         # Convert parameters to have the values that the endpoint expects
@@ -187,12 +207,15 @@ class Client(SingStat):
             params['timeFilter'] = ','.join(params['timeFilter'])
 
         tabledata_endpoint = f'{TABLEDATA_ENDPOINT}/{resource_id}'
-        tabledata = self.send_request(tabledata_endpoint, params)
+        tabledata = self.send_request(
+            tabledata_endpoint,
+            params=params,
+            cache_duration=CACHE_TWELVE_HOURS,
+            sanitise_ignore_keys=TABLEDATA_SANITISE_IGNORE_KEYS,
+        )
 
-        data_count = tabledata['DataCount']
         rows = tabledata['Data']['row']
-
-        if data_count == 1 and len(rows) == 0:
+        if len(rows) == 0:
             warn('Empty data set returned', RuntimeWarning)
 
         return tabledata

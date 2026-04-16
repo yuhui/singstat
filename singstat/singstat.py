@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2019-2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
 
 """Client mixin for interacting with all of the API endpoints."""
 
-from typing import Any, Optional
+from datetime import date, datetime
+from typing import Any
 
 from requests import codes as requests_codes
 from requests.adapters import HTTPAdapter, Retry
@@ -23,8 +24,6 @@ from typeguard import check_type, typechecked
 
 from .constants import (
     CACHE_NAME,
-    CACHE_TWELVE_HOURS,
-    DATA_KEYS_TO_SANITISE,
     USER_AGENT,
 )
 from .exceptions import APIError
@@ -32,7 +31,7 @@ from .timezone import datetime_from_string
 from .types import Url
 
 class SingStat:
-    """Common library for other API Clients.
+    """Client mixin for other API Clients.
 
     Normally, it does not need to be created by applications. But \
         applications may use the public methods provided here.
@@ -41,17 +40,17 @@ class SingStat:
 
     - Connection retries using exponential backoff. \
         (Reference: https://stackoverflow.com/a/35504626.)
-    - Cache to expire after 12 hours.
+    - Cache (cache duration/expiry is set in ``send_request()``).
     - User-agent header.
 
     :param cache_backend: Cache backend name or instance to use. Refer to \
         https://requests-cache.readthedocs.io/en/stable/user_guide/backends.html \
-        for more information and allowed values. Defaults to "sqlite".
+        for more information and allowed values. Defaults to ``"sqlite"``.
     :type cache_backend: str | BaseCache
 
     :param is_test_api: Whether to use SingStat's test API. If this is set to \
-        True, then ``isTestApi=true`` is added to the parameters when calling \
-        ``send_request()``. Defaults to False.
+        ``True``, then ``isTestApi=true`` is added to the parameters when \
+        calling ``send_request()``. Defaults to ``False``.
     :type is_test_api: bool
     """
 
@@ -64,6 +63,10 @@ class SingStat:
         is_test_api: bool=False,
     ) -> None:
         """Constructor method"""
+        headers = {
+            'Accept': 'application/json',
+            'User-Agent': USER_AGENT,
+        }
         self.is_test_api = is_test_api
 
         retries = Retry(
@@ -72,67 +75,87 @@ class SingStat:
             status_forcelist=[500, 502, 503, 504]
         )
 
-        expire_after = CACHE_TWELVE_HOURS
         self.session = CachedSession(
             CACHE_NAME,
             backend=cache_backend,
-            expire_after=expire_after,
             stale_if_error=False,
         )
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
-        self.session.headers.update({
-            'Accept': 'application/json',
-            'User-Agent': USER_AGENT,
-        })
+        self.session.headers.update(headers)
 
     @typechecked
     def __repr__(self) -> str:
         """String representation"""
-        return f'{self.__class__}'
+        return f'{self.__class__} ({USER_AGENT})'
 
     @typechecked
     def build_params(
         self,
         params_expected_type: Any,
-        original_params: dict,
-        default_params: dict | None=None,
-    ) -> dict:
+        original_params: Any,
+        default_params: Any | None=None,
+        key_map: dict[str, str] | None=None,
+        remove_none_values: bool=True,
+    ) -> dict[str, Any]:
         """Build the list of parameters that are compatible for use with the \
-            endpoint URLs, e.g. camelCase parameter names instead of Python's \
-            snake_case.
+            endpoint URLs, e.g. datetime objects to strings.
 
         :param params_expected_type: The expected type of \
             ``original_params``. Should be one of the importable types from \
-            ``singstat.types_args``.
+            ``singstat.client.types_args``.
         :type params_expected_type: Any
 
-        :param original_params: The set of parameters to use for building.
-        :type original_params: dict
+        :param original_params: The set of parameters to use for building. \
+            Should be of the same type as what is specified in \
+            ``params_expected_type``.
+        :type original_params: Any
 
         :param default_params: The set of parameters' default values. Should \
             be of the same type as what is specified in \
-            ``params_expected_type``. Defaults to None.
-        :type default_params: dict or None
+            ``params_expected_type``. Defaults to ``{}``, i.e. empty ``dict``.
+        :type default_params: dict[str, Any] or None
+
+        :param key_map: Mapping of keys used in ``params_expected_types`` to \
+            parameters expected by the endpoint. Defaults to ``{}``, i.e. \
+            empty ``dict``.
+        :type key_map: dict[str, str] or None
+
+        :param remove_none_values: If True, then parameters with ``None`` \
+            values are removed from the returned parameters. Defaults to \
+            ``True``.
+        :type remove_none_values: bool
 
         :return: The set of parameters that can be used with the API endpoints.
-        :rtype: dict
+        :rtype: dict[str, Any]
         """
         if default_params is None:
             default_params = {}
+        if key_map is None:
+            key_map = {}
+
         joined_params = default_params | original_params
+        if remove_none_values:
+            joined_params = {
+                k: v \
+                    for k, v in joined_params.items() if v is not None
+            }
 
         # Ensure that the parameters match the expected input parameter types.
         _ = check_type(joined_params, params_expected_type)
 
-        params: dict = {}
+        params: dict[str, Any] = {}
         for key, value in joined_params.items():
-            # Convert the snake_case key to camelCase param
-            # because that is what the endpoints require.
-            # Ref: https://www.geeksforgeeks.org/python-convert-snake-case-string-to-camel-case/
-            words = key.split('_')
-            param = words[0] + ''.join(word.title() for word in words[1:])
+            param_key = key_map[key] if key in key_map else key
 
-            params[param] = value
+            # Convert date and datetime to ISO format strings
+            # Leave all other types as-is
+            # IMPORTANT! Test for `datetime` before `date`!
+            if isinstance(value, datetime):
+                params[param_key] = value.strftime('%Y-%m-%dT%H:%M:%S')
+            elif isinstance(value, date):
+                params[param_key] = value.strftime('%Y-%m-%d')
+            else:
+                params[param_key] = value
 
         return params
 
@@ -141,75 +164,114 @@ class SingStat:
         self,
         value: Any,
         iterate: bool=True,
+        ignore_keys: list[str] | None=None,
+        key_path: str='',
     ) -> Any:
         """Convert the following:
 
+        - If ``iterate`` is ``True`` and ``value`` is a ``dict`` or ``list``: \
+            sanitise the value's contents.
+        - String with commas: convert to a tuple of numbers if all values are \
+            number-like.
         - String that is like date or datetime: convert to ``datetime.date`` \
-            or ``datetime.datetime`` object respectively.
-        - String value of specific ``dict`` keys: convert to integer or \
-            2-value tuple. The ``dict`` keys are: "between", \
-            "dataLastUpdated", "dateGenerated", "limit", "offset", "rowNo", \
-            "total"
+            or ``datetime.datetime`` respectively.
+        - String that is number-like: convert to ``int`` or ``float`` \
+            appropriately.
+        - Finally: leave the value as-is.
 
         :param value: Value to sanitise.
         :type value: Any
 
         :param iterate: If true, then ``list`` and ``dict`` objects are \
-            sanitised recursively. Defaults to True.
+            sanitised recursively. Defaults to ``True``.
         :type iterate: bool
+
+        :param ignore_keys: List of dict keys to ignore when sanitising, if \
+            value is a ``dict``. Defaults to ``[]``, i.e. empty ``list``.
+        :type ignore_keys: list[str] or None
+
+        :param key_path: Current path of key in the ``dict``. Defaults to \
+            blank string.
+        :type key_path: str
 
         :return: The sanitised value.
         :rtype: Any
         """
-        sanitised_value: Any = value
+        if ignore_keys is None:
+            ignore_keys = []
 
-        if iterate and isinstance(value, list):
-            sanitised_value = [
-                self.sanitise_data(v, iterate=iterate) \
-                    if isinstance(v, (list, dict)) else v
-                    for v in value
-            ]
-        elif iterate and isinstance(value, dict):
-            sanitised_value = {}
-            for k, v in value.items():
-                if k in DATA_KEYS_TO_SANITISE or isinstance(v, (dict, list)):
-                    sanitised_value[k] = self.sanitise_data(v, iterate=iterate)
-                else:
-                    sanitised_value[k] = v
-        elif isinstance(value, str):
+        if iterate:
+            if isinstance(value, list):
+                return [
+                    self.sanitise_data(
+                        v,
+                        iterate=iterate,
+                        ignore_keys=ignore_keys,
+                        key_path=f'{key_path}[]'
+                    ) for v in value
+                ]
+
+            if isinstance(value, dict):
+                sanitised_dict = {}
+                for k, v in value.items():
+                    current_key_path = '.'.join([key_path, k]) \
+                        if key_path else k
+                    if current_key_path in ignore_keys:
+                        sanitised_dict[k] = v
+                    else:
+                        sanitised_dict[k] = self.sanitise_data(
+                            v,
+                            iterate=iterate,
+                            ignore_keys=ignore_keys,
+                            key_path=current_key_path,
+                        )
+                return sanitised_dict
+
+        if not isinstance(value, str):
+            return value
+
+        if ',' in value:
+            # Convert to tuple with numbers.
+            split_value = value.split(',')
+            tuple_value = tuple(
+                self.sanitise_data(
+                    v.strip(),
+                    iterate=False,
+                ) for v in split_value
+            )
+            values_are_int = all(isinstance(v, int) for v in tuple_value)
+            values_are_float = all(isinstance(v, float) for v in tuple_value)
+            if (values_are_int or values_are_float):
+                return tuple_value
+
+        try:
+            # pylint: disable=broad-exception-caught
+
+            # Convert to a date/datetime.
+            return datetime_from_string(value)
+        except Exception:
             try:
-                # pylint: disable=broad-exception-caught
-
-                # Convert to a date/datetime.
-                sanitised_value = datetime_from_string(value)
+                # Convert to an integer
+                return int(value)
             except Exception:
                 try:
-                    # Convert to an integer
-                    sanitised_value = int(value)
+                    # Convert to a float
+                    return float(value)
                 except Exception:
-                    try:
-                        # Convert to tuple with 2 integer values.
-                        split_value = value.split(',')
-                        if len(split_value) == 2:
-                            tuple_value = tuple(
-                                self.sanitise_data(v.strip(), iterate=False) \
-                                    for v in split_value
-                            )
-                            if all((isinstance(v, int) for v in tuple_value)):
-                                sanitised_value = tuple_value
-                    except Exception:
-                        pass
+                    pass
 
-        return sanitised_value
+        return value
 
     @typechecked
     def send_request(
         self,
         url: Url,
-        params: Optional[dict]=None,
+        params: dict[str, Any] | None=None,
+        cache_duration: int=0,
         sanitise: bool=True,
+        sanitise_ignore_keys: list[str] | None=None,
     ) -> Any:
-        """Send a request to an endpoint.
+        """Send a request to an endpoint and return its response.
 
         Normally, this method does not need to be called directly. However, \
             if SingStat were to change their API specification but this \
@@ -226,15 +288,30 @@ class SingStat:
         :param params: List of parameters to be passed to the endpoint URL. \
             Parameter names **must** match the names required by the \
             endpoints, particularly with typecase (e.g. camelCase). Defaults \
-            to None.
-        :type params: dict
+            to ``{}``, i.e. empty ``dict``.
+        :type params: dict[str, Any] or None
 
-        :param sanitise: If true, then the response's values are sanitised \
-            using the ``sanitise_data()`` method. Defaults to True.
+        :param cache_duration: Number of seconds before the cache expires. \
+            Defaults to ``0``, i.e. do not cache.
+        :type cache_duration: int
+
+        :param sanitise: If ``True``, then the response's values are \
+            sanitised using the ``sanitise_data()`` method. Defaults to \
+            ``True``.
         :type iterate: bool
 
-        :raises APIError: "No data records returned" when count of data is 0.
-        :raises HTTPError: Error occurred during the request process.
+        :param sanitise_ignore_keys: List of keys to ignore in the response \
+            value during sanitising when that response value is a ``dict``. \
+            Defaults to ``[]``, i.e. empty ``list``.
+        :type sanitise_ignore_keys: list[str] or None
+
+        :raises APIError: "No data records returned." when count of data is 0.
+        :raises APIError: "One or more validation errors occurred." when HTTP \
+            400 status is returned.
+        :raises requests.exceptions.HTTPError: Error occurred during the \
+            request process.
+        :raises requests.exceptions.JSONDecodeError: Error occurred when \
+            JSON-parsing the response.
 
         :return: Response JSON content of the request.
         :rtype: Any
@@ -248,24 +325,85 @@ class SingStat:
         if self.is_test_api:
             params['isTestApi'] = 'true'
 
-        response = self.session.get(url, params=params)
+        response_val = self.__collect_response_value(
+            url,
+            params=params,
+            cache_duration=cache_duration,
+        )
+
+        data = self.sanitise_data(
+            response_val,
+            ignore_keys=sanitise_ignore_keys,
+        ) if sanitise else response_val
+
+        return data
+
+# private
+
+    @typechecked
+    def __collect_response_value(
+        self,
+        url: Url,
+        params: dict,
+        cache_duration: int,
+    ) -> Any:
+        """Collect response value from an endpoint.
+
+        :param url: The endpoint URL to send the request to.
+        :type url: Url
+
+        :param params: List of parameters to be passed to the endpoint URL.
+        :type params: dict
+
+        :param cache_duration: Number of seconds before the cache expires.
+        :type cache_duration: int
+
+        :raises APIError: "No data records returned." when count of data is 0.
+        :raises APIError: "One or more validation errors occurred." when HTTP \
+            400 status is returned.
+        :raises requests.exceptions.HTTPError: Error occurred during the \
+            request process.
+        :raises requests.exceptions.JSONDecodeError: Error occurred when \
+            JSON-parsing the response.
+
+        :return: Results from the response.
+        :rtype: Any
+        """
+        response_value: Any
+
+        response = self.session.get(
+            url,
+            params=params,
+            expire_after=cache_duration,
+        )
+
+        # This may raise JSONDecodeError if the response is not JSON-parsable.
+        response_json = response.json()
+
+        if response.status_code == requests_codes['bad_request']:
+            data = response_json.get('Data', {})
+            error_message = data.get(
+                'title',
+                'One or more validation errors occurred.',
+            )
+            raise APIError(
+                message=error_message,
+                data=response_json,
+            )
+
         if response.status_code != requests_codes['ok']:
             response.raise_for_status()
 
-        response_json = {}
-        try:
-            response_json = response.json()
-        except ValueError:
-            pass
-
-        data = self.sanitise_data(response_json) if sanitise else response_json
-
-        data_count = response_json['DataCount'] \
-            if 'DataCount' in response_json else 0
+        data_count = response_json.get('DataCount', 0)
         if data_count == 0:
-            raise APIError('No data records returned', data=response_json)
+            raise APIError(
+                message='No data records returned.',
+                data=response_json,
+            )
 
-        return data
+        response_value = response_json
+
+        return response_value
 
 __all__ = [
     'SingStat',

@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2019-2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,16 +15,12 @@
 from datetime import datetime
 
 from .client import Client
-from .types import Url
 
-NAME = 'singstat'
-VERSION = '2.0.2' # Production
-# VERSION = f'{VERSION}.{datetime.now().strftime("%Y%m%d%H%M")}' # Development
-AUTHOR = 'Yuhui'
-AUTHOR_EMAIL = 'yuhuibc@gmail.com'
+from .author import AUTHOR
+from .version import VERSION
 
 __all__ = [
     'Client',
-    'Url',
 ]
+__author__ = AUTHOR
 __version__ = VERSION

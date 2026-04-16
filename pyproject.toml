@@ -1,6 +1,5 @@
 [build-system]
 requires = [
-    "requests-cache",
     "setuptools",
     "singstat",
 ]
@@ -10,14 +9,14 @@ build-backend = "setuptools.build_meta"
 name = "singstat"
 dynamic = [
     "dependencies",
-    "version"
+    "version",
 ]
 authors = [{name = "Yuhui", email = "yuhuibc@gmail.com"}]
+maintainers = [{name = "Yuhui", email = "yuhuibc@gmail.com"}]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Web Environment",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Natural Language :: English",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
@@ -36,16 +35,17 @@ keywords = [
     "singapore",
     "wrapper",
 ]
-license = {file = "LICENSE.txt"}
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE.txt"]
 readme = "README.rst"
-requires-python = ">= 3.11"
+requires-python = ">= 3.13"
 
-    [project.urls]
-    Homepage = "https://github.com/yuhui/singstat"
-    Documentation = "https://singstat.readthedocs.io/en/latest/"
-    Repository = "https://github.com/yuhui/singstat.git"
-    "Bug Tracker" = "https://github.com/yuhui/singstat/issues"
-    Changelog = "https://github.com/yuhui/singstat/blob/master/CHANGELOG.rst"
+[project.urls]
+homepage = "https://github.com/yuhui/singstat"
+documentation = "https://singstat.readthedocs.io/en/latest/"
+repository = "https://github.com/yuhui/singstat.git"
+issues = "https://github.com/yuhui/singstat/issues"
+changelog = "https://github.com/yuhui/singstat/blob/master/CHANGELOG.rst"
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}

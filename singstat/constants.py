@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Yuhui
+# Copyright 2019-2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,48 +14,26 @@
 
 """Constants that can be used anywhere."""
 
+from .version import VERSION
+
+NAME = 'singstat'
+
 BASE_API_DOMAIN = 'https://tablebuilder.singstat.gov.sg'
 BASE_API_ENDPOINT = f'{BASE_API_DOMAIN}/api/table'
 
-METADATA_ENDPOINT = f'{BASE_API_ENDPOINT}/metadata'
-RESOURCE_ID_ENDPOINT = f'{BASE_API_ENDPOINT}/resourceid'
-TABLEDATA_ENDPOINT = f'{BASE_API_ENDPOINT}/tabledata'
+CACHE_NAME = f'{NAME}_cache'
 
-RESOURCE_ID_DEFAULT_ARGS = {
-    'keyword': '%',
-    'search_option': 'all',
-}
-RESOURCE_ID_SEARCH_OPTIONS = ('all', 'title', 'variable')
-
-TABLEDATA_SORT_BY_REGEXP = r'^(key|value|seriesNo|rowNo|rowText) (asc|desc)$'
-
-DATA_KEYS_TO_SANITISE = (
-    'between',
-    'dataLastUpdated',
-    'dateGenerated',
-    'limit',
-    'offset',
-    'rowNo',
-    'total',
-)
-
-CACHE_NAME = 'singstat_cache'
 CACHE_TWELVE_HOURS = 60 * 60 * 12
-USER_AGENT = f'SingStat Python package/2.0.1 https://pypi.org/project/singstat'
+
+USER_AGENT = f'SingStat Python package/{VERSION} https://pypi.org/project/{NAME}'
 
 __all__ = [
-    'METADATA_ENDPOINT',
-    'RESOURCE_ID_ENDPOINT',
-    'TABLEDATA_ENDPOINT',
+    'NAME',
 
-    'RESOURCE_ID_DEFAULT_ARGS',
-    'RESOURCE_ID_SEARCH_OPTIONS',
-
-    'TABLEDATA_SORT_BY_REGEXP',
-
-    'DATA_KEYS_TO_SANITISE',
+    'BASE_API_ENDPOINT',
 
     'CACHE_NAME',
+
     'CACHE_TWELVE_HOURS',
 
     'USER_AGENT',

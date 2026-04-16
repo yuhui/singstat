@@ -1,4 +1,4 @@
-# Copyright 2019 Yuhui. All rights reserved.
+# Copyright 2026 Yuhui. All rights reserved.
 #
 # Licensed under the GNU General Public License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,3 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""Package author."""
+
+AUTHOR = 'Yuhui'
+AUTHOR_EMAIL = 'yuhuibc@gmail.com'
+
+__all__ = [
+    'AUTHOR',
+    'AUTHOR_EMAIL',
+]

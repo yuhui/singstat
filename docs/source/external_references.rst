@@ -1,6 +1,8 @@
 External References
 ===================
 
-`SingStat.gov.sg's Developer Guide`_
+|SingStat.gov.sg's Developer Guide|
 
-.. _SingStat.gov.sg's Developer Guide: https://tablebuilder.singstat.gov.sg/view-api/for-developers
+.. |SingStat.gov.sg's Developer Guide| raw:: html
+
+   <a href="https://tablebuilder.singstat.gov.sg/view-api/for-developers" target="_blank">SingStat.gov.sg's Developer Guide</a>
